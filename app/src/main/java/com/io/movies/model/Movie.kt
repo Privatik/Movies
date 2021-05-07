@@ -16,20 +16,53 @@ data class ResultMovie(
 data class Movie(
     @SerializedName("id")
     @PrimaryKey
-    val id: Int,
+    var id: Int,
     @SerializedName("backdrop_path")
     @ColumnInfo(name = "backdrop_path")
-    val backImage: String,
+    var backImage: String?,
     @SerializedName("original_title")
-    val title: String,
+    var title: String,
     @SerializedName("overview")
-    val overview: String,
+    var overview: String,
     @SerializedName("poster_path")
-    val poster: String,
+    var poster: String?,
     @SerializedName("popularity")
-    val popularity: Float,
+    var popularity: Float,
     @SerializedName("vote_average")
     @ColumnInfo(name = "vote_average")
-    val voteAverage: Float,
+    var voteAverage: Float,
     var like:Boolean = false
 )
+
+fun Movie.replace(movie: Movie){
+    val z = movie.copy(
+            id = movie.id,
+            backImage = movie.backImage,
+            title = movie.title,
+            poster = movie.poster,
+            overview = movie.overview,
+            popularity = movie.popularity,
+            voteAverage = movie.voteAverage,
+            like = movie.like
+    )
+
+
+
+    movie.id = id
+    movie.backImage = backImage
+    movie.title = title
+    movie.poster = poster
+    movie.overview = overview
+    movie.popularity = popularity
+    movie.voteAverage = voteAverage
+    movie.like = like
+
+    id = z.id
+    backImage = z.backImage
+    title = z.title
+    poster = z.poster
+    overview = z.overview
+    popularity = z.popularity
+    voteAverage = z.voteAverage
+    like = z.like
+}

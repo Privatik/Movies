@@ -14,11 +14,14 @@ interface MovieDao {
     @Query("SELECT * FROM movie")
     fun getMovieListPaging(): DataSource.Factory<Int, Movie>
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Query("SELECT * FROM movie WHERE title LIKE :search")
+    fun getMovieListPagingSearch(search: String): DataSource.Factory<Int, Movie>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     @JvmSuppressWildcards
     fun insert(movie: List<Movie>)
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(movie: Movie)
 
     @Delete

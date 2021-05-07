@@ -6,7 +6,7 @@ import com.io.movies.model.Movie
 import com.io.movies.repository.MovieRepository
 import javax.inject.Inject
 
-class MovieBoundaryCallback @Inject constructor(private val movieRepository: MovieRepository): PagedList.BoundaryCallback<Movie>(){
+class MovieBoundaryCallback @Inject constructor(private var movieRepository: MovieRepository): PagedList.BoundaryCallback<Movie>(){
 
     private var count = 1
 

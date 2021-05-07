@@ -3,13 +3,17 @@ package com.io.movies.adapter
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.paging.PagedList
 import androidx.paging.PagedListAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.io.movies.R
 import com.io.movies.databinding.ItemMovieInfoBinding
 import com.io.movies.model.Movie
+import com.io.movies.model.replace
 import com.io.movies.util.Config
+import kotlin.random.Random
 
 class PagedAdapterMovie: PagedListAdapter<Movie, PagedAdapterMovie.MovieViewHolder>(MyDiffUtil()) {
 
@@ -22,10 +26,31 @@ class PagedAdapterMovie: PagedListAdapter<Movie, PagedAdapterMovie.MovieViewHold
     )
 
     override fun onBindViewHolder(holder: MovieViewHolder, position: Int) {
-        getItem(position)?.let{
-            holder.binding.movie = it
+        getItem(position)?.let{ movie ->
+            holder.binding.movie = movie
             holder.bind()
+            holder.binding.root.setOnClickListener {
+                Log.e("Movie", movie.title)
+            }
         } ?: Log.e("Paging","null $position")
+    }
+
+    fun shuffle(){
+        currentList?.let {
+            Log.e("Shuffle","${it.size}")
+            val arr = (0 until it.size).toMutableList().shuffled()
+            for (i in 0 until it.size) {
+                if (i != arr[i]){
+                    val item1 = getItem(i)!!
+                    val item2 = getItem(arr[i])!!
+                    Log.e("Shuffle","from  1 - $item1  2 - $item2")
+                    item1.replace(item2)
+
+                    Log.e("Shuffle","to 1 - $item1  2 - $item2")
+                }
+            }
+        }
+       notifyDataSetChanged()
     }
 
     class MovieViewHolder(val binding: ItemMovieInfoBinding): RecyclerView.ViewHolder(binding.root){
@@ -33,6 +58,7 @@ class PagedAdapterMovie: PagedListAdapter<Movie, PagedAdapterMovie.MovieViewHold
         fun bind(){
             Glide.with(binding.root)
                     .load("${Config.photo}${binding.movie!!.poster}")
+                    .error(R.drawable.no_picture)
                     .into(binding.icon)
         }
     }

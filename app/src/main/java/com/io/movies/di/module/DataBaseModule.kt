@@ -2,6 +2,7 @@ package com.io.movies.di.module
 
 import android.content.Context
 import androidx.room.Room
+import com.io.movies.repository.database.MovieDao
 import com.io.movies.repository.database.MovieDataBase
 import dagger.Module
 import dagger.Provides
@@ -19,4 +20,8 @@ class DataBaseModule {
             "movie_database"
         ).allowMainThreadQueries()
                 .build()
+
+    @Provides
+    @Singleton
+    fun dao(database: MovieDataBase): MovieDao = database.movieDao()
 }
