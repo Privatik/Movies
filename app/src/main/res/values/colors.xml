@@ -10,5 +10,7 @@
 
     <color name="pink">#4C124B</color>
     <color name="grey">#302929</color>
-    <color name="grey_des">#856B8E</color>
+    <color name="grey_des">#221A25</color>
+    <color name="pre_black">#0F0C10</color>
+    <color name="yellow">#BAA856</color>
 </resources>

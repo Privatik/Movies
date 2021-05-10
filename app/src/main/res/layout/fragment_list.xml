@@ -12,15 +12,21 @@
     android:layout_height="match_parent"
     tools:context=".ui.fragment.ListFragment"
     android:orientation="vertical"
-    android:background="@color/grey">
+    android:background="@color/grey_des">
 
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:elevation="4dp"
-        android:background="@drawable/edit_background"
-        app:contentInsetStart="0dp"/>
+    <com.lsjwzh.widget.materialloadingprogressbar.CircleProgressBar
+         android:id="@+id/progressBar"
+        app:mlpb_enable_circle_background="false"
+
+        app:mlpb_show_arrow="true"
+        app:mlpb_arrow_height="5dp"
+        app:mlpb_arrow_width="10dp"
+        android:layout_gravity="center"
+        android:visibility="gone"
+        app:mlpb_progress_color="@color/purple_200"
+        app:mlpb_progress_stoke_width="8dp"
+        android:layout_width="70dp"
+        android:layout_height="70dp" />
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/swipe_refresh"
@@ -33,6 +39,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_marginTop="10dp"
+            android:scrollbars="none"
             tools:listitem="@layout/item_movie_info"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             android:orientation="vertical"/>

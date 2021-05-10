@@ -115,4 +115,9 @@ dependencies {
     //swipeRefresh
     implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.1.0"
 
+    //CardView
+    implementation "androidx.cardview:cardview:1.0.0"
+
+    //CustomProgressBar
+    implementation('com.lsjwzh:materialloadingprogressbar:0.5.8-RELEASE')
 }

@@ -1,5 +1,7 @@
 package com.io.movies.ui.fragment
 
+import android.annotation.SuppressLint
+import android.util.Log
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
@@ -7,36 +9,53 @@ import androidx.paging.LivePagedListBuilder
 import androidx.paging.PagedList
 import com.io.movies.model.Movie
 import com.io.movies.paging.MovieBoundaryCallback
-import com.io.movies.paging.MovieSearchBoundaryCallback
-import com.io.movies.repository.database.MovieDao
 import javax.inject.Inject
 
 class ListViewModel @Inject constructor(
-        private val base: MovieDao,
-        private val boundaryCallback: MovieBoundaryCallback,
-        private val searchBoundaryCallback: MovieSearchBoundaryCallback,
+        private val boundaryCallback: MovieBoundaryCallback
 ) : ViewModel() {
 
     var newLists: LiveData<PagedList<Movie>>? = null
+    var isFavoriteMode = false
 
     private val config by lazy {
         PagedList.Config.Builder()
-                .setEnablePlaceholders(false)
-                .setPageSize(20)
-                .build()
+            .setEnablePlaceholders(false)
+            .setPageSize(20)
+            .setInitialLoadSizeHint(40)
+            .build()
+    }
+
+    @SuppressLint("CheckResult")
+    fun updateMovie(movie: Movie){
+        boundaryCallback.movieRepository.update(movie = movie)
     }
 
     fun newRecycler(query: String){
-        newLists = if (query.isEmpty()) LivePagedListBuilder(base.getMovieListPaging(), config).setBoundaryCallback(boundaryCallback).build()
-        else {
-            searchBoundaryCallback.update(query = query)
-            LivePagedListBuilder(base.getMovieListPagingSearch(search = "%$query%"), config).setBoundaryCallback(searchBoundaryCallback).build()
-        }
+        val live = LivePagedListBuilder(boundaryCallback.movieRepository.factory(query = query, isFavoriteMode = isFavoriteMode), config)
 
+        if (!isFavoriteMode) {
+            boundaryCallback.update(query = query)
+            live.setBoundaryCallback(
+                boundaryCallback
+            )
+        }
+        newLists = live.build()
     }
 
     fun removeRecycler(lifecycle: LifecycleOwner) {
-        newLists?.removeObservers(lifecycle)
-        newLists = null
+        newLists!!.removeObservers(lifecycle)
+    }
+
+    @SuppressLint("CheckResult")
+    fun refresh(){
+        boundaryCallback.movieRepository.delete().
+        subscribe({
+            Log.e("Delete","Complete")
+
+        },{
+            Log.e("Delete","Error $it")
+        })
+
     }
 }

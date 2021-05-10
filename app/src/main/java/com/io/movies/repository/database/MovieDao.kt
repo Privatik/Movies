@@ -11,11 +11,17 @@ import io.reactivex.Single
 @Dao
 interface MovieDao {
 
-    @Query("SELECT * FROM movie")
+    @Query("SELECT * FROM movie WHERE `like` = 0")
     fun getMovieListPaging(): DataSource.Factory<Int, Movie>
 
-    @Query("SELECT * FROM movie WHERE title LIKE :search")
+    @Query("SELECT * FROM movie WHERE `like` = 0 AND title LIKE :search")
     fun getMovieListPagingSearch(search: String): DataSource.Factory<Int, Movie>
+
+    @Query("SELECT * FROM movie WHERE `like` = 1")
+    fun getMovieListPagingLike(): DataSource.Factory<Int, Movie>
+
+    @Query("SELECT * FROM movie WHERE `like` = 1 AND title LIKE :search")
+    fun getMovieListPagingLikeSearch(search: String): DataSource.Factory<Int, Movie>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     @JvmSuppressWildcards
@@ -24,6 +30,9 @@ interface MovieDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(movie: Movie)
 
-    @Delete
-    fun delete(movie: Movie): Completable
+    @Update
+    fun update(movie: Movie): Completable
+
+    @Query( "DELETE FROM movie")
+    fun delete(): Completable
 }

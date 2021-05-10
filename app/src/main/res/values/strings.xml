@@ -3,4 +3,5 @@
     <string name="edit_movie">Edit movie</string>
     <string name="favorite">favorite</string>
     <string name="poster">poster</string>
+    <string name="back">back</string>
 </resources>
