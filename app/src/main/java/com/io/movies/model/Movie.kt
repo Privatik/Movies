@@ -13,7 +13,6 @@ data class ResultMovie(
 )
 
 @Entity(indices  = [Index(value = ["id"], unique = true)])
-@TypeConverters(DateTypeConverter::class)
 data class Movie(
     @PrimaryKey(autoGenerate = true)
     val order: Int,
@@ -29,6 +28,6 @@ data class Movie(
     val voteAverage: Float,
     @SerializedName("release_date")
     @ColumnInfo(name = "release_date")
-    val releaseDate: Date?,
+    val releaseDate: String?,
     var like:Boolean = false
 )

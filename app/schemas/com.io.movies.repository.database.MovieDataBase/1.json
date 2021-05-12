@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "62a3863389d9605e722eed5dcec02275",
+    "identityHash": "665180357e69bd5c70bddfbecadf640d",
     "entities": [
       {
         "tableName": "Movie",
@@ -70,7 +70,7 @@
         "foreignKeys": []
       },
       {
-        "tableName": "AboutMovie",
+        "tableName": "info_about_movie",
         "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `backdrop_path` TEXT, `adult` INTEGER NOT NULL, `budget` INTEGER NOT NULL, `homepage` TEXT, `imdb_id` TEXT, `genres` TEXT NOT NULL, `overview` TEXT, `title` TEXT NOT NULL, `status` TEXT NOT NULL, `vote_average` REAL NOT NULL, `release_date` TEXT, `poster_path` TEXT, `production_companies` TEXT NOT NULL, `production_countries` TEXT NOT NULL, PRIMARY KEY(`id`))",
         "fields": [
           {
@@ -172,12 +172,38 @@
         },
         "indices": [],
         "foreignKeys": []
+      },
+      {
+        "tableName": "result_credit",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `cast` TEXT NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cast",
+            "columnName": "cast",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
       }
     ],
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '62a3863389d9605e722eed5dcec02275')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '665180357e69bd5c70bddfbecadf640d')"
     ]
   }
 }

@@ -6,11 +6,11 @@ import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
 import com.google.gson.annotations.SerializedName
 import com.io.movies.repository.database.DateTypeConverter
-import com.io.movies.repository.database.MovieAboutConverter
+import com.io.movies.repository.database.MovieAboutTypeConverter
 import java.util.*
 
-@Entity
-@TypeConverters(DateTypeConverter::class, MovieAboutConverter::class)
+@Entity(tableName = "info_about_movie")
+@TypeConverters(DateTypeConverter::class, MovieAboutTypeConverter::class)
 data class AboutMovie(
     @SerializedName("id")
     @PrimaryKey

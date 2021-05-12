@@ -1,6 +1,7 @@
 package com.io.movies.controller
 
 import android.content.DialogInterface
+import android.util.Log
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.add
 import androidx.fragment.app.commit
@@ -13,6 +14,7 @@ class LoadDialogController(private val myFragmentManager: FragmentManager) {
     private var dialog: LoadDialog? = null
 
     fun openDialogLoadAboutMovie() {
+        Log.e("LoadDialog","open")
 
         dialog = LoadDialog().apply {
             show(myFragmentManager, "AboutMovie")
@@ -28,6 +30,7 @@ class LoadDialogController(private val myFragmentManager: FragmentManager) {
     }
 
     fun closeDialogLoadAboutMovie() {
+        Log.e("LoadDialog","dismiss")
         dialog?.let {
             it.dismiss()
             null

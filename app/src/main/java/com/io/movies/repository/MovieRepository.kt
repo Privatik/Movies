@@ -33,7 +33,7 @@ class MovieRepository @Inject constructor(
     }
 
     @SuppressLint("CheckResult")
-    fun delete(): Completable = database.delete()
+    fun delete() =  database.delete()
 
     fun factory(query: String, isFavoriteMode: Boolean): DataSource.Factory<Int, Movie> =
         if (isFavoriteMode){
@@ -57,11 +57,12 @@ class MovieRepository @Inject constructor(
         observer.subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({
-                    Log.e("TAG","save new page $it")
+                  //  Log.e("TAG","save new page $it")
                     //database.movieDao().insert(it.movies)
                     it.movies.forEach {  movie ->
-                      //  Log.e("Save Movie","$movie")
-                        database.insertOrReplace(movie = movie)
+                        //Log.e("Save Movie","$movie")
+                       // database.insert(movie = movie)
+                       database.insertOrReplace(movie = movie)
                     }
                     Log.e("TAG","End load")
                 },{

@@ -11,6 +11,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.io.movies.R
 import com.io.movies.adapter.RecyclerAdapterCompany
+import com.io.movies.adapter.RecyclerAdapterCredit
 import com.io.movies.app.App
 import com.io.movies.databinding.FragmentMovieBinding
 import com.io.movies.ui.activity.IMovie
@@ -85,6 +86,10 @@ class MovieFragment: Fragment() {
                     }
                 }
             }
+        }
+
+        binding.viewmodel?.updateCredit?.observe(viewLifecycleOwner){
+            binding.actors.adapter = RecyclerAdapterCredit(it.cast)
         }
 
     }

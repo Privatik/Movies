@@ -7,7 +7,7 @@ import com.io.movies.model.Company
 import com.io.movies.model.Country
 import com.io.movies.model.Genres
 
-class MovieAboutConverter {
+class MovieAboutTypeConverter {
 
     private val gson = GsonBuilder().create()
 

@@ -8,31 +8,34 @@ import javax.inject.Inject
 
 class MovieBoundaryCallback @Inject constructor(val movieRepository: MovieRepository): PagedList.BoundaryCallback<Movie>(){
 
-    private var count = 1
+    private var count = 2
     private var query = ""
 
     override fun onZeroItemsLoaded() {
         Log.e("TAG","Init")
-        postQuery()
-        count += 1
+        postQuery(page = 1)
     }
 
     override fun onItemAtEndLoaded(itemAtEnd: Movie) {
         Log.e("TAG","load new page")
-        postQuery()
-        count += 1
+        postQuery(page = count)
+        count++
     }
 
-    private fun postQuery(){
+    private fun postQuery(page: Int){
         if (query == ""){
-            movieRepository.load(page = count)
+            movieRepository.load(page = page)
         } else {
-            movieRepository.load(page = count, search = query)
+            movieRepository.load(page = page, search = query)
         }
     }
 
     fun update(query: String){
-        count = 1
+        count = 2
         this.query = query
+    }
+
+    fun refresh(){
+        count = 2
     }
 }

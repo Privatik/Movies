@@ -17,6 +17,7 @@ class ListViewModel @Inject constructor(
 
     var newLists: LiveData<PagedList<Movie>>? = null
     var isFavoriteMode = false
+    var isConnect: Boolean = true
 
     private val config by lazy {
         PagedList.Config.Builder()
@@ -34,7 +35,7 @@ class ListViewModel @Inject constructor(
     fun newRecycler(query: String){
         val live = LivePagedListBuilder(boundaryCallback.movieRepository.factory(query = query, isFavoriteMode = isFavoriteMode), config)
 
-        if (!isFavoriteMode) {
+        if (!isFavoriteMode && isConnect) {
             boundaryCallback.update(query = query)
             live.setBoundaryCallback(
                 boundaryCallback
@@ -45,13 +46,14 @@ class ListViewModel @Inject constructor(
 
     @SuppressLint("CheckResult")
     fun refresh(){
-        boundaryCallback.movieRepository.delete().
-        subscribe({
-            Log.e("Delete","Complete")
+        if (isConnect) {
+            boundaryCallback.refresh()
+            deleteBase()
+        }
+    }
 
-        },{
-            Log.e("Delete","Error $it")
-        })
-
+    @SuppressLint("CheckResult")
+    fun deleteBase() {
+        boundaryCallback.movieRepository.delete()
     }
 }

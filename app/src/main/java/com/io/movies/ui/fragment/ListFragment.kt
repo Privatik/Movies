@@ -6,6 +6,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -16,6 +17,7 @@ import com.io.movies.databinding.FragmentListBinding
 import com.io.movies.model.Movie
 import com.io.movies.ui.activity.IMovie
 import com.io.movies.ui.activity.IUpdateRecycler
+import com.io.movies.util.Config
 import io.reactivex.Completable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
@@ -38,6 +40,7 @@ class ListFragment : Fragment() {
     }
 
     private val showMovie: (Int) -> Unit = {
+        Log.e("AboutMovie","Open")
         movieInfo.openAboutOfMovie(it)
     }
 
@@ -47,7 +50,7 @@ class ListFragment : Fragment() {
     }
 
     private val updateMovie: (Movie) -> Unit = {
-        Log.e("TAG","movie ${it.title} -> like - ${it.like}")
+        Log.e("TAG", "movie ${it.title} -> like - ${it.like}")
         binding.viewmodel!!.updateMovie(movie = it)
     }
 
@@ -63,12 +66,14 @@ class ListFragment : Fragment() {
     }
 
     override fun onCreateView(
-            inflater: LayoutInflater, container: ViewGroup?,
-            savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
     ): View {
         binding = FragmentListBinding.inflate(inflater, container, false)
 
         binding.viewmodel = ViewModelProvider(this, factory).get(ListViewModel::class.java)
+
+        checkNetwork()
 
         newRecycler()
 
@@ -86,22 +91,23 @@ class ListFragment : Fragment() {
             supportActionBar?.setDisplayShowTitleEnabled(false)
         }
 
-            binding.swipeRefresh.setColorSchemeResources(R.color.purple_200)
-            binding.swipeRefresh.setProgressBackgroundColorSchemeResource(R.color.grey)
+        binding.swipeRefresh.setColorSchemeResources(R.color.purple_200)
+        binding.swipeRefresh.setProgressBackgroundColorSchemeResource(R.color.grey)
 
-            binding.swipeRefresh.setOnRefreshListener {
-                Completable.complete()
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe {
-                        Log.e("TAG", "swipe")
-                        binding.viewmodel?.refresh()
-                        binding.swipeRefresh.isRefreshing = false
-                    }
-            }
+        binding.swipeRefresh.setOnRefreshListener {
+            Completable.complete()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe {
+                    Log.e("TAG", "swipe")
+                    checkNetwork()
+                    binding.viewmodel?.refresh()
+                    binding.swipeRefresh.isRefreshing = false
+                }
+        }
     }
 
-    private fun newRecycler(query: String = ""){
+    private fun newRecycler(query: String = "") {
         if (mAdapter != null) removeRecycler()
         mAdapter = PagedAdapterMovie(updateMovie, showMovie)
 
@@ -109,9 +115,9 @@ class ListFragment : Fragment() {
         var isLoad = true
         binding.viewmodel?.newRecycler(query = query)
 
-        Log.e("Recycler","create")
-        binding.viewmodel?.newLists!!.observe(viewLifecycleOwner){
-            Log.e("List","add new")
+        Log.e("Recycler", "create")
+        binding.viewmodel?.newLists!!.observe(viewLifecycleOwner) {
+            Log.e("List", "add new")
             mAdapter?.submitList(it)
             if (isLoad) {
                 binding.progressBar.visibility = View.GONE
@@ -124,9 +130,20 @@ class ListFragment : Fragment() {
 
 
     private fun removeRecycler() {
-        Log.e("Recycler","Remove")
+        Log.e("Recycler", "Remove")
         binding.viewmodel?.newLists!!.removeObservers(viewLifecycleOwner)
         mAdapter?.currentList?.dataSource?.invalidate()
         mAdapter = null
+    }
+
+    private fun checkNetwork() {
+        binding.viewmodel?.isConnect = Config.isOnline(requireContext()).also{
+            if (it) {
+                binding.viewmodel?.deleteBase()
+            } else {
+                Toast.makeText(requireContext(), "Нет сети", Toast.LENGTH_LONG).show()
+            }
+        }
+
     }
 }

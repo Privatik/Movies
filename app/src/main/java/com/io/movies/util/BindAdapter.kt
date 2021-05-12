@@ -5,6 +5,7 @@ import android.widget.ImageView
 import androidx.databinding.BindingAdapter
 import com.bumptech.glide.Glide
 import com.io.movies.R
+import org.jetbrains.annotations.NotNull
 
 @BindingAdapter("app:loadImageOrNoPoster")
 fun loadImageOrNoPoster(view: ImageView, url: String?) {
@@ -22,7 +23,6 @@ fun loadImageOrNoImage(view: ImageView, url: String?) {
         .into(view)
 }
 
-
 @BindingAdapter("app:loadImage")
 fun loadImage(view: ImageView, url: String?) {
     Glide.with(view.context)
@@ -30,6 +30,7 @@ fun loadImage(view: ImageView, url: String?) {
         .into(view)
 }
 
+@NotNull
 @BindingAdapter("app:isVisibility")
 fun isVisibility(view: View, isVisibility: Boolean) {
     view.visibility = if (isVisibility) View.VISIBLE else View.GONE
