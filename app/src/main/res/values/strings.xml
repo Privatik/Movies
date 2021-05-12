@@ -4,4 +4,6 @@
     <string name="favorite">favorite</string>
     <string name="poster">poster</string>
     <string name="back">back</string>
+    <string name="icon">icon</string>
+    <string name="site">Site</string>
 </resources>

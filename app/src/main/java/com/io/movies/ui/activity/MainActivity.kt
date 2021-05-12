@@ -8,16 +8,20 @@ import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.databinding.DataBindingUtil
+import androidx.fragment.app.add
+import androidx.fragment.app.commit
 import androidx.lifecycle.ViewModelProvider
 import com.io.movies.R
+import com.io.movies.controller.LoadDialogController
 import com.io.movies.databinding.ActivityMainBinding
+import com.io.movies.ui.fragment.MovieFragment
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import java.util.concurrent.TimeUnit
 
-class MainActivity : AppCompatActivity(), IUpdateRecycler {
+class MainActivity : AppCompatActivity(), IUpdateRecycler, IMovie {
 
     private lateinit var pair: Pair<MenuItem, MenuItem>
 
@@ -26,6 +30,8 @@ class MainActivity : AppCompatActivity(), IUpdateRecycler {
 
     private lateinit var binding: ActivityMainBinding
 
+    private val dialogController by lazy { LoadDialogController(supportFragmentManager) }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -33,9 +39,6 @@ class MainActivity : AppCompatActivity(), IUpdateRecycler {
             this, R.layout.activity_main)
 
         binding.viewmodel = ViewModelProvider(this).get(MainViewHModel::class.java)
-
-        setSupportActionBar(binding.toolbar)
-        supportActionBar?.setDisplayShowTitleEnabled(false)
 
 
     }
@@ -100,6 +103,16 @@ class MainActivity : AppCompatActivity(), IUpdateRecycler {
         return true
     }
 
+    override fun onBackPressed() {
+        supportFragmentManager.apply {
+            if (backStackEntryCount > 0) {
+                popBackStack()
+            } else {
+                super.onBackPressed()
+            }
+        }
+    }
+
     override fun updateRecycler(search: (String) -> Unit) {
         updateRecycler = search
     }
@@ -108,9 +121,26 @@ class MainActivity : AppCompatActivity(), IUpdateRecycler {
         this.isFavoriteMode = isFavoriteMode
     }
 
+    override fun openAboutOfMovie(id: Int) {
+        supportFragmentManager.commit {
+            setReorderingAllowed(true)
+            addToBackStack(null)
+            add<MovieFragment>(R.id.fragment_container_view, args = MovieFragment.newInstanceBundle(id = id))
+        }
+
+        dialogController.openDialogLoadAboutMovie()
+    }
+
+    override fun closeDialogLoadAboutMovie() = dialogController.closeDialogLoadAboutMovie()
+
 }
 
 interface IUpdateRecycler{
     fun updateRecycler(search: (String) -> Unit)
     fun isFavoriteMode(isFavoriteMode: (String, Boolean) -> Unit)
+}
+
+interface IMovie{
+    fun openAboutOfMovie(id: Int)
+    fun closeDialogLoadAboutMovie()
 }

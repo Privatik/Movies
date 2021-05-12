@@ -61,7 +61,7 @@ class MovieRepository @Inject constructor(
                     //database.movieDao().insert(it.movies)
                     it.movies.forEach {  movie ->
                       //  Log.e("Save Movie","$movie")
-                        database.insert(movie = movie)
+                        database.insertOrReplace(movie = movie)
                     }
                     Log.e("TAG","End load")
                 },{

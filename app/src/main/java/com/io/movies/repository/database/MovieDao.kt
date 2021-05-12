@@ -9,30 +9,42 @@ import io.reactivex.Single
 
 
 @Dao
-interface MovieDao {
+abstract class MovieDao {
 
     @Query("SELECT * FROM movie WHERE `like` = 0")
-    fun getMovieListPaging(): DataSource.Factory<Int, Movie>
+    abstract fun getMovieListPaging(): DataSource.Factory<Int, Movie>
 
     @Query("SELECT * FROM movie WHERE `like` = 0 AND title LIKE :search")
-    fun getMovieListPagingSearch(search: String): DataSource.Factory<Int, Movie>
+    abstract fun getMovieListPagingSearch(search: String): DataSource.Factory<Int, Movie>
 
     @Query("SELECT * FROM movie WHERE `like` = 1")
-    fun getMovieListPagingLike(): DataSource.Factory<Int, Movie>
+    abstract fun getMovieListPagingLike(): DataSource.Factory<Int, Movie>
 
-    @Query("SELECT * FROM movie WHERE `like` = 1 AND title LIKE :search")
-    fun getMovieListPagingLikeSearch(search: String): DataSource.Factory<Int, Movie>
+    @Query("SELECT * FROM movie WHERE `like` = 1 AND title LIKE :search ")
+    abstract fun getMovieListPagingLikeSearch(search: String): DataSource.Factory<Int, Movie>
+
+    @Query("SELECT * FROM movie WHERE id = :id And `like` = 1")
+    abstract fun getMovieLike(id: Int): Movie?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     @JvmSuppressWildcards
-    fun insert(movie: List<Movie>)
+    abstract fun insert(movie: List<Movie>)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insert(movie: Movie)
+    abstract fun insert(movie: Movie)
 
     @Update
-    fun update(movie: Movie): Completable
+    abstract fun update(movie: Movie): Completable
 
-    @Query( "DELETE FROM movie")
-    fun delete(): Completable
+    @Query( "DELETE FROM movie WHERE `like` = 0")
+    abstract fun delete(): Completable
+
+    @Transaction
+    @JvmSuppressWildcards
+    open fun insertOrReplace(movie: Movie){
+         getMovieLike(movie.id)?.let {
+             movie.like = it.like
+         }
+        insert(movie)
+    }
 }

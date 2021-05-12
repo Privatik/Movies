@@ -3,6 +3,8 @@ package com.io.movies.di.module
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.io.movies.BuildConfig
+import com.io.movies.model.AboutMovie
+import com.io.movies.repository.network.AboutMovieService
 import com.io.movies.repository.network.MovieService
 import com.jakewharton.retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import dagger.Module
@@ -45,5 +47,9 @@ class NetworkModule {
 
     @Provides
     @Singleton
-    fun beerService(retrofit: Retrofit): MovieService = retrofit.create(MovieService::class.java)
+    fun movieService(retrofit: Retrofit): MovieService = retrofit.create(MovieService::class.java)
+
+    @Provides
+    @Singleton
+    fun aboutMovieService(retrofit: Retrofit): AboutMovieService = retrofit.create(AboutMovieService::class.java)
 }

@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+    <data>
+        <variable
+            name="viewmodel"
+            type="com.io.movies.ui.fragment.MovieViewModel" />
+
+        <variable
+            name="movie"
+            type="com.io.movies.model.AboutMovie" />
+    </data>
+
+<ScrollView
+        android:id="@+id/scroll_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scrollbars="none"
+        android:visibility="gone"
+        tools:visibility="visible"
+        app:layout_constraintTop_toBottomOf="@id/back_image"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/grey_des">
+
+            <ImageView
+                android:id="@+id/back_image"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:contentDescription="@string/back"
+                android:adjustViewBounds="true"
+                tools:src="@drawable/back"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:loadImage="@{movie.backdrop}" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/start_guideline"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:orientation="vertical"
+                app:layout_constraintGuide_begin="16dp"
+                />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/end_guideline"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:orientation="vertical"
+                app:layout_constraintGuide_end="16dp"
+                />
+
+            <ImageView
+                android:id="@+id/poster"
+                android:layout_width="150dp"
+                android:layout_height="200dp"
+                app:loadImageOrNoPoster="@{movie.poster}"
+                android:layout_marginTop="10dp"
+                tools:src="@drawable/no_poster"
+                app:layout_constraintTop_toBottomOf="@id/back_image"
+                app:layout_constraintStart_toStartOf="@id/start_guideline"
+                android:contentDescription="@string/poster" />
+
+            <TextView
+                android:id="@+id/title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintEnd_toEndOf="@id/end_guideline"
+                app:layout_constraintStart_toEndOf="@+id/poster"
+                app:layout_constraintTop_toTopOf="@+id/poster"
+                tools:text="Fight Club"
+                android:text="@{movie.title}"
+                android:textSize="20sp"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="10dp"
+                android:textColor="@color/white"
+                app:layout_constrainedWidth="true"/>
+
+            <TextView
+                android:id="@+id/site"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/site"
+                app:isVisibility="@{movie.homepage != null}"
+                app:layout_constraintTop_toBottomOf="@id/title"
+                app:layout_constraintEnd_toEndOf="@id/title"
+                android:textColor="@color/white"
+                android:textSize="20sp"
+                android:padding="10dp"
+                android:layout_marginTop="10dp"/>
+
+
+
+            <TextView
+                android:id="@+id/overview"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/white"
+                android:layout_marginStart="14dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginEnd="14dp"
+                android:text='@{movie.overview == null? "" : movie.overview}'
+                tools:text = "A ticking-time-bomb insomniac and a slippery soap salesman channel primal male aggression into a shocking new form of therapy. Their concept catches on, with underground fight clubs forming in every town, until an eccentric gets in the way and ignites an out-of-control spiral toward oblivion."
+                app:layout_constraintEnd_toEndOf="@id/end_guideline"
+                app:layout_constraintStart_toStartOf="@id/start_guideline"
+                app:layout_constraintTop_toBottomOf="@+id/poster"
+                app:layout_constrainedWidth="true"/>
+
+
+            <androidx.appcompat.widget.AppCompatRatingBar
+                android:id="@+id/stars"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
+                app:layout_constraintTop_toBottomOf="@+id/genres"
+                app:layout_constraintStart_toStartOf="@id/start_guideline"
+                app:layout_constraintEnd_toEndOf="@id/end_guideline"
+                android:layout_marginTop="5dp"
+                style="?android:attr/ratingBarStyleIndicator"
+                android:theme="@style/MyRatingBar"
+                android:rating="@{movie.voteAverage}"
+                tools:rating="7.5"
+                android:numStars="10"
+                android:scaleX="0.8"
+                android:scaleY="0.8"/>
+
+            <androidx.constraintlayout.helper.widget.Flow
+                android:id="@+id/genres"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                app:flow_horizontalBias="0"
+                app:flow_horizontalGap="8dp"
+                app:flow_horizontalStyle="packed"
+                app:flow_verticalGap="8dp"
+                app:flow_verticalStyle="spread"
+                app:flow_wrapMode="chain"
+                app:layout_constrainedWidth="true"
+                app:layout_constraintEnd_toEndOf="@id/end_guideline"
+                app:layout_constraintStart_toStartOf="@id/start_guideline"
+                app:layout_constraintTop_toBottomOf="@+id/overview"
+                tools:ignore="RtlSymmetry" />
+
+            <TextView
+                android:id="@+id/vote_average"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:maxLength="4"
+                android:textColor="@color/yellow"
+                android:textSize="35sp"
+                android:layout_marginTop="7dp"
+                app:layout_constraintEnd_toEndOf="@+id/stars"
+                app:layout_constraintStart_toStartOf="@+id/start_guideline"
+                app:layout_constraintTop_toBottomOf="@id/stars"
+                tools:text='@{movie.voteAverage + ""}' />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/actors"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                tools:listitem="@layout/item_company"
+                app:layout_constraintTop_toBottomOf="@id/vote_average"
+                app:layout_constraintStart_toStartOf="@id/start_guideline"
+                app:layout_constraintEnd_toEndOf="@id/end_guideline"/>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/company"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:reverseLayout="true"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                tools:listitem="@layout/item_company"
+                app:layout_constraintTop_toBottomOf="@id/actors"
+                tools:itemCount="3"
+                app:layout_constraintStart_toStartOf="@id/start_guideline"
+                app:layout_constraintEnd_toEndOf="@id/end_guideline"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+</ScrollView>
+</layout>

@@ -12,17 +12,15 @@ data class ResultMovie(
     val movies: List<Movie>,
 )
 
-@Entity
+@Entity(indices  = [Index(value = ["id"], unique = true)])
 @TypeConverters(DateTypeConverter::class)
 data class Movie(
     @PrimaryKey(autoGenerate = true)
-    val key: Int,
+    val order: Int,
     @SerializedName("id")
     @ColumnInfo(name = "id")
     val id: Int,
-    @SerializedName("adult")
-    val adult: Boolean,
-    @SerializedName("original_title")
+    @SerializedName("title")
     val title: String,
     @SerializedName("poster_path")
     val poster: String?,

@@ -43,10 +43,6 @@ class ListViewModel @Inject constructor(
         newLists = live.build()
     }
 
-    fun removeRecycler(lifecycle: LifecycleOwner) {
-        newLists!!.removeObservers(lifecycle)
-    }
-
     @SuppressLint("CheckResult")
     fun refresh(){
         boundaryCallback.movieRepository.delete().

@@ -1,10 +1,12 @@
 package com.io.movies.repository.network
 
+import com.io.movies.model.AboutMovie
 import com.io.movies.model.ResultMovie
 import com.io.movies.util.Config
 import io.reactivex.Single
 
 import retrofit2.http.GET
+import retrofit2.http.Path
 import retrofit2.http.Query
 
 

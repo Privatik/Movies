@@ -6,6 +6,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.io.movies.R
@@ -13,6 +14,7 @@ import com.io.movies.adapter.PagedAdapterMovie
 import com.io.movies.app.App
 import com.io.movies.databinding.FragmentListBinding
 import com.io.movies.model.Movie
+import com.io.movies.ui.activity.IMovie
 import com.io.movies.ui.activity.IUpdateRecycler
 import io.reactivex.Completable
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -24,6 +26,7 @@ class ListFragment : Fragment() {
 
     private lateinit var binding: FragmentListBinding
     private lateinit var updateSearch: IUpdateRecycler
+    private lateinit var movieInfo: IMovie
 
     @Inject
     lateinit var factory: ViewModelProvider.Factory
@@ -32,6 +35,10 @@ class ListFragment : Fragment() {
 
     private val updateRecycler: (String) -> Unit = {
         newRecycler(query = it)
+    }
+
+    private val showMovie: (Int) -> Unit = {
+        movieInfo.openAboutOfMovie(it)
     }
 
     private val favoriteMode: (String, Boolean) -> Unit = { query, isFavoriteMode ->
@@ -47,6 +54,7 @@ class ListFragment : Fragment() {
     override fun onAttach(context: Context) {
         super.onAttach(context)
         updateSearch = context as IUpdateRecycler
+        movieInfo = context as IMovie
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -73,11 +81,16 @@ class ListFragment : Fragment() {
         updateSearch.updateRecycler(updateRecycler)
         updateSearch.isFavoriteMode(favoriteMode)
 
-        binding.swipeRefresh.setColorSchemeResources(R.color.purple_200)
-        binding.swipeRefresh.setProgressBackgroundColorSchemeResource(R.color.grey)
+        (activity as AppCompatActivity).apply {
+            setSupportActionBar(binding.toolbar)
+            supportActionBar?.setDisplayShowTitleEnabled(false)
+        }
 
-        binding.swipeRefresh.setOnRefreshListener {
-            Completable.complete()
+            binding.swipeRefresh.setColorSchemeResources(R.color.purple_200)
+            binding.swipeRefresh.setProgressBackgroundColorSchemeResource(R.color.grey)
+
+            binding.swipeRefresh.setOnRefreshListener {
+                Completable.complete()
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe {
@@ -85,12 +98,12 @@ class ListFragment : Fragment() {
                         binding.viewmodel?.refresh()
                         binding.swipeRefresh.isRefreshing = false
                     }
-        }
+            }
     }
 
     private fun newRecycler(query: String = ""){
         if (mAdapter != null) removeRecycler()
-        mAdapter = PagedAdapterMovie(updateMovie)
+        mAdapter = PagedAdapterMovie(updateMovie, showMovie)
 
         binding.progressBar.visibility = View.VISIBLE
         var isLoad = true
@@ -112,7 +125,7 @@ class ListFragment : Fragment() {
 
     private fun removeRecycler() {
         Log.e("Recycler","Remove")
-        binding.viewmodel?.removeRecycler(lifecycle = viewLifecycleOwner)
+        binding.viewmodel?.newLists!!.removeObservers(viewLifecycleOwner)
         mAdapter?.currentList?.dataSource?.invalidate()
         mAdapter = null
     }
