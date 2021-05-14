@@ -2,7 +2,6 @@ package com.io.movies.di.module
 
 import android.content.Context
 import androidx.room.Room
-import com.io.movies.repository.database.AboutMovieDao
 import com.io.movies.repository.database.MovieDao
 import com.io.movies.repository.database.MovieDataBase
 import dagger.Module
@@ -25,8 +24,4 @@ class DataBaseModule {
     @Provides
     @Singleton
     fun daoMovie(database: MovieDataBase): MovieDao = database.movieDao()
-
-    @Provides
-    @Singleton
-    fun daoAboutMovie(database: MovieDataBase): AboutMovieDao = database.aboutMovieDao()
 }

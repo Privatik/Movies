@@ -72,6 +72,6 @@ data class Company(
 )
 
 data class Country(
-    @SerializedName("name")
+    @SerializedName("iso_3166_1")
     val country: String
 )

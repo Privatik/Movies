@@ -4,7 +4,7 @@ import com.io.movies.di.module.ContextModule
 import com.io.movies.di.module.DataBaseModule
 import com.io.movies.di.module.NetworkModule
 import com.io.movies.ui.fragment.MovieFragment
-import com.io.movies.ui.fragment.ListFragment
+import com.io.movies.ui.fragment.ListMoviesFragment
 import com.io.movies.viewmodelfactory.ViewModelModule
 import dagger.Component
 import javax.inject.Singleton
@@ -13,6 +13,6 @@ import javax.inject.Singleton
 @Singleton
 interface MainComponent {
 
-    fun inject(fragment: ListFragment)
+    fun inject(moviesFragment: ListMoviesFragment)
     fun inject(fragment: MovieFragment)
 }

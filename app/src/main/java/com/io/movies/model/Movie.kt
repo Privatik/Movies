@@ -29,5 +29,5 @@ data class Movie(
     @SerializedName("release_date")
     @ColumnInfo(name = "release_date")
     val releaseDate: String?,
-    var like:Boolean = false
+    var isFavorite:Boolean = false
 )

@@ -3,7 +3,7 @@ package com.io.movies.viewmodelfactory
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.io.movies.ui.fragment.MovieViewModel
-import com.io.movies.ui.fragment.ListViewModel
+import com.io.movies.ui.fragment.ListMoviesViewModel
 import dagger.Binds
 import dagger.MapKey
 import dagger.Module
@@ -33,8 +33,8 @@ abstract class ViewModelModule {
 
     @Binds
     @IntoMap
-    @ViewModelKey(ListViewModel::class)
-    internal abstract fun postListViewModel(viewModel: ListViewModel): ViewModel
+    @ViewModelKey(ListMoviesViewModel::class)
+    internal abstract fun postListViewModel(moviesViewModel: ListMoviesViewModel): ViewModel
 
     @Binds
     @IntoMap

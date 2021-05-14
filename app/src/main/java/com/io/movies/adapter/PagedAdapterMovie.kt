@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.io.movies.databinding.ItemMovieInfoBinding
 import com.io.movies.model.Movie
 
-class PagedAdapterMovie constructor(private val update: (Movie) -> Unit, private val showMovie: (Int) -> Unit): PagedListAdapter<Movie, PagedAdapterMovie.MovieViewHolder>(MyDiffUtil()) {
+class PagedAdapterMovie constructor(private val update: (Movie) -> Unit, private val showMovie: (Int, Boolean) -> Unit): PagedListAdapter<Movie, PagedAdapterMovie.MovieViewHolder>(MyDiffUtil()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MovieViewHolder = MovieViewHolder(
             ItemMovieInfoBinding.inflate(
@@ -25,13 +25,13 @@ class PagedAdapterMovie constructor(private val update: (Movie) -> Unit, private
                 this.movie = movie
                 holder.bind()
                 root.setOnClickListener {
-                    showMovie(movie.id)
+                    showMovie(movie.id, movie.isFavorite)
                 }
 
                 favorite.setOnClickListener {
                     Log.e("Movie","Like")
-                    val like = !movie.like
-                    movie.like = like
+                    val like = !movie.isFavorite
+                    movie.isFavorite = like
                     favorite.isSelected = like
                     update(movie)
                 }
@@ -43,7 +43,7 @@ class PagedAdapterMovie constructor(private val update: (Movie) -> Unit, private
 
         fun bind(){
             binding.apply {
-                favorite.isSelected = movie!!.like
+                favorite.isSelected = movie!!.isFavorite
             }
         }
     }

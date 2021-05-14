@@ -2,12 +2,13 @@ package com.io.movies.repository
 
 import android.annotation.SuppressLint
 import android.util.Log
+import androidx.databinding.ObservableBoolean
 import androidx.paging.DataSource
 import com.io.movies.model.Movie
 import com.io.movies.model.ResultMovie
+import com.io.movies.paging.MovieBoundaryCallback
 import com.io.movies.repository.database.MovieDao
 import com.io.movies.repository.network.MovieService
-import io.reactivex.Completable
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
@@ -18,6 +19,25 @@ class MovieRepository @Inject constructor(
     private val database: MovieDao
 ) {
 
+    private lateinit var isRefreshing: ObservableBoolean
+
+    private val boundaryCallback by lazy {
+        val listenerQueue: (Int, String) -> Unit = { page, query ->
+            if (query.isEmpty()){
+                load(page = page)
+            }else{
+                load(page = page, query = query)
+            }
+        }
+        MovieBoundaryCallback(listenerQueue)
+    }
+
+    fun postParameters(refreshing: ObservableBoolean) {
+          isRefreshing = refreshing
+    }
+
+    fun callback(): MovieBoundaryCallback = boundaryCallback
+
     @SuppressLint("CheckResult")
     fun load(page: Int){
         Log.e("TAG","start load in main page:= $page")
@@ -26,10 +46,10 @@ class MovieRepository @Inject constructor(
     }
 
     @SuppressLint("CheckResult")
-    fun load(page: Int, search: String){
-        Log.e("TAG","start load in search page:= $page $search")
+    fun load(page: Int, query: String){
+        Log.e("TAG","start load in search page:= $page $query")
 
-        loadInNetwork(movieService.getSearchMovies(page = page, query = search))
+        loadInNetwork(movieService.getSearchMovies(page = page, query = query))
     }
 
     @SuppressLint("CheckResult")
@@ -54,6 +74,8 @@ class MovieRepository @Inject constructor(
 
     @SuppressLint("CheckResult")
     private fun loadInNetwork(observer: Single<ResultMovie>){
+        isRefreshing.set(true)
+
         observer.subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({
@@ -64,6 +86,7 @@ class MovieRepository @Inject constructor(
                        // database.insert(movie = movie)
                        database.insertOrReplace(movie = movie)
                     }
+                    isRefreshing.set(false)
                     Log.e("TAG","End load")
                 },{
                     Log.e("Paging","Repository method load: ${it.message}")
@@ -71,12 +94,20 @@ class MovieRepository @Inject constructor(
     }
 
     @SuppressLint("CheckResult")
-    fun update(movie:Movie) {
-        database.update(movie = movie).subscribe({
+    fun updateMovie(movie:Movie) {
+        database.updateMovie(movie = movie).subscribe({
            Log.e("Movie","Update")
         },{
             Log.e("Movie","Error - $it")
         })
 
+    }
+
+    fun updateQuery(query: String = ""){
+        boundaryCallback.update(query = query)
+    }
+
+    fun refresh(){
+        boundaryCallback.refresh()
     }
 }

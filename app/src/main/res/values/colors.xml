@@ -12,6 +12,14 @@
     <color name="grey">#302929</color>
     <color name="grey_des">#221A25</color>
     <color name="grey_des_alpha">#AD221A25</color>
-    <color name="pre_black">#0F0C10</color>
+    <color name="pre_black">#6D5075</color>
     <color name="yellow">#BAA856</color>
+
+
+    //textColor Status
+    <color name="green_text">#48B13D</color>
+    <color name="yellow_text">#D8C838</color>
+    <color name="blue_text">#3A5CC5</color>
+    <color name="red_text">#E12228</color>
+
 </resources>

@@ -14,11 +14,11 @@
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/fragment_container_view"
-        android:name="com.io.movies.ui.fragment.ListFragment"
+        android:name="com.io.movies.ui.fragment.ListMoviesFragment"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/toolbar" />
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

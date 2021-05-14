@@ -6,4 +6,9 @@
     <string name="back">back</string>
     <string name="icon">icon</string>
     <string name="site">Site</string>
+    <string name="actors">Actors</string>
+    <string name="company">Companies</string>
+    <string name="imdb">imdb</string>
+    <string name="budget">Budget</string>
+    <string name="eightteen_plus">Eightteen Plus</string>
 </resources>

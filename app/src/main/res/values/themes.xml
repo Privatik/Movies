@@ -35,10 +35,15 @@
         <item name="colorControlActivated">@color/yellow</item>
     </style>
 
-    <style name="Actors">
+    <style name="ItemFlowTextView">
         <item name="android:textColor">@color/white</item>
         <item name="android:background">@drawable/favorite_menu_back_selected</item>
         <item name="android:padding">6dp</item>
+    </style>
+
+    <style name="InfoAboutMovie">
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textSize">25sp</item>
     </style>
 
     <style parent="Theme.AppCompat.Dialog" name="FullScreenDialogStyle">

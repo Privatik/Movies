@@ -10,6 +10,7 @@ import androidx.appcompat.widget.SearchView
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.add
 import androidx.fragment.app.commit
+import androidx.fragment.app.replace
 import androidx.lifecycle.ViewModelProvider
 import com.io.movies.R
 import com.io.movies.controller.LoadDialogController
@@ -21,16 +22,13 @@ import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import java.util.concurrent.TimeUnit
 
-class MainActivity : AppCompatActivity(), IUpdateRecycler, IMovie {
-
-    private lateinit var pair: Pair<MenuItem, MenuItem>
-
-    private lateinit var updateRecycler: (String) -> Unit
-    private lateinit var isFavoriteMode: (String, Boolean) -> Unit
+class MainActivity : AppCompatActivity(), IMovie, IBackFromAboutMovie {
 
     private lateinit var binding: ActivityMainBinding
 
     private val dialogController by lazy { LoadDialogController(supportFragmentManager) }
+
+    private var isClickableBackButtonInMovieFragment = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,89 +41,16 @@ class MainActivity : AppCompatActivity(), IUpdateRecycler, IMovie {
 
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId){
-            R.id.action_favorite -> {
-                Log.e("Menu", "Selected")
-                pair.second.isVisible = true
-                pair.first.isVisible = false
-                binding.viewmodel?.query?.let { isFavoriteMode(it,true) }
-                true
-            }
-            R.id.action_favorite_selected -> {
-                Log.e("Menu", "Not Selected")
-                pair.second.isVisible = false
-                pair.first.isVisible = true
-                binding.viewmodel?.query?.let { isFavoriteMode(it,false) }
-                true
-            }
-            else -> {
-                Log.e("Menu", "Empty")
-                super.onOptionsItemSelected(item)
-            }
-        }
-    }
-
-    @SuppressLint("WrongConstant")
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.menu_list, menu)
-        val search = menu.findItem(R.id.action_search).actionView as SearchView
-
-        val second = menu.findItem(R.id.action_favorite_selected)
-        second.isVisible = false
-        pair = Pair(menu.findItem(R.id.action_favorite),second)
-
-        search.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-            private var subscription: Disposable? = null
-
-            override fun onQueryTextSubmit(query: String): Boolean {
-                Log.e("TAG", "submit $query")
-                binding.viewmodel?.query = query
-                updateRecycler(query)
-                return true
-            }
-
-            override fun onQueryTextChange(newText: String): Boolean {
-                if (subscription != null) {
-                    subscription!!.dispose()
-                }
-
-                subscription = Observable.timer(800, TimeUnit.MILLISECONDS)
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe {
-                        onQueryTextSubmit(newText)
-                    }
-                return true
-            }
-
-        })
+    override fun onSupportNavigateUp(): Boolean {
+        if (isClickableBackButtonInMovieFragment) onBackPressed()
         return true
     }
 
-    override fun onBackPressed() {
-        supportFragmentManager.apply {
-            if (backStackEntryCount > 0) {
-                popBackStack()
-            } else {
-                super.onBackPressed()
-            }
-        }
-    }
-
-    override fun updateRecycler(search: (String) -> Unit) {
-        updateRecycler = search
-    }
-
-    override fun isFavoriteMode(isFavoriteMode: (String, Boolean) -> Unit) {
-        this.isFavoriteMode = isFavoriteMode
-    }
-
-    override fun openAboutOfMovie(id: Int) {
+    override fun openAboutOfMovie(id: Int, isFavorite: Boolean) {
         supportFragmentManager.commit {
             setReorderingAllowed(true)
             addToBackStack(null)
-            add<MovieFragment>(R.id.fragment_container_view, args = MovieFragment.newInstanceBundle(id = id))
+            replace<MovieFragment>(R.id.fragment_container_view, args = MovieFragment.newInstanceBundle(id = id, isFavorite = isFavorite))
         }
 
         dialogController.openDialogLoadAboutMovie()
@@ -133,14 +58,17 @@ class MainActivity : AppCompatActivity(), IUpdateRecycler, IMovie {
 
     override fun closeDialogLoadAboutMovie() = dialogController.closeDialogLoadAboutMovie()
 
-}
+    override fun backButtonClickable(isClickable: Boolean) {
+        isClickableBackButtonInMovieFragment = isClickable
+    }
 
-interface IUpdateRecycler{
-    fun updateRecycler(search: (String) -> Unit)
-    fun isFavoriteMode(isFavoriteMode: (String, Boolean) -> Unit)
 }
 
 interface IMovie{
-    fun openAboutOfMovie(id: Int)
+    fun openAboutOfMovie(id: Int, isFavorite: Boolean)
     fun closeDialogLoadAboutMovie()
+}
+
+interface IBackFromAboutMovie{
+    fun backButtonClickable(isClickable: Boolean)
 }
