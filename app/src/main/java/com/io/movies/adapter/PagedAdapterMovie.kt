@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.io.movies.databinding.ItemMovieInfoBinding
 import com.io.movies.model.Movie
 
-class PagedAdapterMovie constructor(private val update: (Movie) -> Unit, private val showMovie: (Int, Boolean) -> Unit): PagedListAdapter<Movie, PagedAdapterMovie.MovieViewHolder>(MyDiffUtil()) {
+class PagedAdapterMovie constructor(private val update: (Movie) -> Unit, private val showMovie: (Movie) -> Unit): PagedListAdapter<Movie, PagedAdapterMovie.MovieViewHolder>(MyDiffUtil()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MovieViewHolder = MovieViewHolder(
             ItemMovieInfoBinding.inflate(
@@ -25,7 +25,7 @@ class PagedAdapterMovie constructor(private val update: (Movie) -> Unit, private
                 this.movie = movie
                 holder.bind()
                 root.setOnClickListener {
-                    showMovie(movie.id, movie.isFavorite)
+                    showMovie(movie)
                 }
 
                 favorite.setOnClickListener {
@@ -55,6 +55,6 @@ class MyDiffUtil: DiffUtil.ItemCallback<Movie>() {
     }
 
     override fun areContentsTheSame(oldItem: Movie, newItem: Movie): Boolean {
-        return oldItem == newItem
+        return oldItem.isFavorite == newItem.isFavorite
     }
 }

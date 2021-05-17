@@ -22,7 +22,7 @@ class AboutMovieRepository @Inject constructor(
          database.insert(credit = credit)
     }
 
-    fun updateMovieFavorite(id: Int, isFavorite: Boolean) = database.updateMovie(id = id, isFavorite = isFavorite)
+    fun updateMovieFavorite(aboutMovie: AboutMovie, isFavorite: Boolean) = database.updateListFavorite(aboutMovie = aboutMovie, isFavorite = isFavorite)
 
     fun loadMovie(id: Int): Single<AboutMovie> = database.getMovie(id = id)
             .onErrorResumeNext( aboutMovieService.getMovie(movieId = id) )

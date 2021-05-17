@@ -23,54 +23,58 @@ class MovieRepository @Inject constructor(
 
     private val boundaryCallback by lazy {
         val listenerQueue: (Int, String) -> Unit = { page, query ->
-            if (query.isEmpty()){
+            if (query.isEmpty()) {
                 load(page = page)
-            }else{
+            } else {
                 load(page = page, query = query)
             }
         }
+
         MovieBoundaryCallback(listenerQueue)
     }
 
     fun postParameters(refreshing: ObservableBoolean) {
-          isRefreshing = refreshing
+        isRefreshing = refreshing
     }
 
     fun callback(): MovieBoundaryCallback = boundaryCallback
 
     @SuppressLint("CheckResult")
-    fun load(page: Int){
-        Log.e("TAG","start load in main page:= $page")
+    fun load(page: Int) {
+        Log.e("TAG", "start load in main page:= $page")
 
         loadInNetwork(movieService.getMovies(page = page))
     }
 
     @SuppressLint("CheckResult")
-    fun load(page: Int, query: String){
-        Log.e("TAG","start load in search page:= $page $query")
+    fun load(page: Int, query: String) {
+        Log.e("TAG", "start load in search page:= $page $query")
 
         loadInNetwork(movieService.getSearchMovies(page = page, query = query))
     }
 
     @SuppressLint("CheckResult")
-    fun delete() =  database.delete()
+    fun delete() = database.delete()
 
-    fun factory(query: String, isFavoriteMode: Boolean): DataSource.Factory<Int, Movie> =
-        if (isFavoriteMode){
-            if (query.isEmpty()){
-                database.getMovieListPagingLike()
-            }
-            else{
-               database.getMovieListPagingLikeSearch(search = "%$query%")
-            }
+    fun factory(query: String, isFavoriteMode: Boolean): DataSource.Factory<Int, Movie> {
+        return if (isFavoriteMode) factoryFavorite(query = query)
+        else factoryMovieInfo(query = query)
+    }
+
+    private fun factoryMovieInfo(query: String): DataSource.Factory<Int, Movie> =
+        if (query.isEmpty()) {
+            database.getMovieListPaging().map{ it as Movie}
         } else {
-            if (query.isEmpty()){
-              database.getMovieListPaging()
-            }
-            else{
-               database.getMovieListPagingSearch(search = "%$query%")
-            }
+            database.getMovieListPagingSearch(search = "%$query%").map{ it as Movie}
         }
+
+    private fun factoryFavorite(query: String): DataSource.Factory<Int, Movie> =
+        if (query.isEmpty()) {
+            database.getMovieListPagingFavorite().map{ it as Movie}
+        } else {
+            database.getMovieListPagingFavoriteSearch(search = "%$query%").map{ it as Movie}
+        }
+
 
     @SuppressLint("CheckResult")
     private fun loadInNetwork(observer: Single<ResultMovie>){
@@ -81,10 +85,10 @@ class MovieRepository @Inject constructor(
                 .subscribe({
                   //  Log.e("TAG","save new page $it")
                     //database.movieDao().insert(it.movies)
-                    it.movies.forEach {  movie ->
+                    it.movieInfos.forEach { movie ->
                         //Log.e("Save Movie","$movie")
                        // database.insert(movie = movie)
-                       database.insertOrReplace(movie = movie)
+                       database.insertOrReplace(movieInfo = movie)
                     }
                     isRefreshing.set(false)
                     Log.e("TAG","End load")
@@ -94,14 +98,7 @@ class MovieRepository @Inject constructor(
     }
 
     @SuppressLint("CheckResult")
-    fun updateMovie(movie:Movie) {
-        database.updateMovie(movie = movie).subscribe({
-           Log.e("Movie","Update")
-        },{
-            Log.e("Movie","Error - $it")
-        })
-
-    }
+    fun updateMovie(movie: Movie) = database.updateListFavorite(movie = movie)
 
     fun updateQuery(query: String = ""){
         boundaryCallback.update(query = query)

@@ -7,6 +7,7 @@ import androidx.room.TypeConverters
 import com.google.gson.annotations.SerializedName
 import com.io.movies.repository.database.DateTypeConverter
 import com.io.movies.repository.database.MovieAboutTypeConverter
+import java.text.SimpleDateFormat
 import java.util.*
 
 @Entity(tableName = "info_about_movie")
@@ -75,3 +76,14 @@ data class Country(
     @SerializedName("iso_3166_1")
     val country: String
 )
+
+fun AboutMovie.convertToFavorite(): Favorite{
+    return Favorite(
+        order = 0,
+        id = this.id,
+        title = this.title,
+        poster = this.poster,
+        voteAverage = this.voteAverage,
+        releaseDate = releaseDate?.let {SimpleDateFormat("yyyy-MM-dd", Locale.US).format(it)}
+    )
+}

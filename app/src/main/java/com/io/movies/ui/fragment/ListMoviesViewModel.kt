@@ -1,6 +1,7 @@
 package com.io.movies.ui.fragment
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.databinding.ObservableBoolean
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
@@ -32,13 +33,29 @@ class ListMoviesViewModel @Inject constructor(
         movieRepository.postParameters(isRefreshing)
     }
 
-    @SuppressLint("CheckResult")
+    fun updateMovies(movies: List<Movie>){
+        movies.forEach {
+            updateMovie(movie = it)
+        }
+    }
+
     fun updateMovie(movie: Movie){
+        Log.e("Tag", "Update $movie")
         movieRepository.updateMovie(movie = movie)
     }
 
-    fun newRecycler(query: String){
+    fun setNullLiveData(){
+        newLists = null
+    }
 
+    fun getLifeData(): LiveData<PagedList<Movie>> {
+        if (newLists == null) {
+            newLIfeData()
+        }
+        return newLists!!
+    }
+
+    private fun newLIfeData(){
         val live = LivePagedListBuilder(movieRepository.factory(query = query, isFavoriteMode = isFavoriteMode), config)
 
         if (!isFavoriteMode && isConnect) {

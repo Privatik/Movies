@@ -3,8 +3,7 @@ package com.io.movies.paging
 import android.util.Log
 import androidx.paging.PagedList
 import com.io.movies.model.Movie
-import com.io.movies.repository.MovieRepository
-import javax.inject.Inject
+import com.io.movies.model.MovieInfo
 
 class MovieBoundaryCallback constructor(private val load: (Int, String) -> Unit): PagedList.BoundaryCallback<Movie>(){
 

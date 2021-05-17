@@ -44,7 +44,7 @@ class MovieViewModel @Inject constructor(
             })
     }
 
-    fun updateMovie(id: Int, isFavorite: Boolean){
-        repository.updateMovieFavorite(id = id, isFavorite = isFavorite)
+    fun updateMovie(aboutMovie: AboutMovie, isFavorite: Boolean){
+        repository.updateMovieFavorite(aboutMovie = aboutMovie, isFavorite = isFavorite)
     }
 }

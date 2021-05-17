@@ -2,66 +2,92 @@ package com.io.movies.repository.database
 
 import androidx.paging.DataSource
 import androidx.room.*
-import com.io.movies.model.AboutMovie
-
-import com.io.movies.model.Movie
-import com.io.movies.model.ResultCredit
-import io.reactivex.Completable
+import com.io.movies.model.*
 import io.reactivex.Single
 
 
 @Dao
 interface MovieDao {
 
-    @Query("SELECT * FROM movie WHERE isFavorite = 0")
-    fun getMovieListPaging(): DataSource.Factory<Int, Movie>
+    @Query("SELECT * FROM movieinfo")
+    fun getMovieListPaging(): DataSource.Factory<Int, MovieInfo>
 
-    @Query("SELECT * FROM movie WHERE isFavorite = 0 AND title LIKE :search")
-    fun getMovieListPagingSearch(search: String): DataSource.Factory<Int, Movie>
+    @Query("SELECT * FROM movieinfo WHERE title LIKE :search")
+    fun getMovieListPagingSearch(search: String): DataSource.Factory<Int, MovieInfo>
 
-    @Query("SELECT * FROM movie WHERE isFavorite = 1")
-    fun getMovieListPagingLike(): DataSource.Factory<Int, Movie>
+    @Query("SELECT * FROM favorite")
+    fun getMovieListPagingFavorite(): DataSource.Factory<Int, Favorite>
 
-    @Query("SELECT * FROM movie WHERE isFavorite = 1 AND title LIKE :search ")
-    fun getMovieListPagingLikeSearch(search: String): DataSource.Factory<Int, Movie>
+    @Query("SELECT * FROM favorite WHERE title LIKE :search")
+    fun getMovieListPagingFavoriteSearch(search: String): DataSource.Factory<Int, Favorite>
 
-    @Query("SELECT * FROM movie WHERE id = :id And isFavorite = 1")
-    fun getMovieLike(id: Int): Movie?
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    @JvmSuppressWildcards
-    fun insert(movie: List<Movie>)
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insert(movie: Movie)
-
-    @Update
-    fun updateMovie(movie: Movie): Completable
-
-    @Query("UPDATE movie SET isFavorite = :isFavorite WHERE id = :id")
-    fun updateMovie(id: Int, isFavorite: Boolean)
-
-    @Query("DELETE FROM movie WHERE isFavorite = 0")
-    fun deleteMovie()
-
-    @Query( "DELETE FROM info_about_movie WHERE id NOT IN (SELECT id FROM movie)")
-    fun deleteAboutMovie()
-
-    @Query( "DELETE FROM result_credit WHERE id NOT IN (SELECT id FROM movie)")
-    fun deleteCredits()
+    @Query("SELECT id FROM favorite WHERE id = :id")
+    fun getMovieFavorite(id: Int): Int?
 
     @Query("SELECT * FROM info_about_movie WHERE id = :id")
     fun getMovie(id: Int): Single<AboutMovie>
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insert(aboutMovie: AboutMovie)
 
     @Query("SELECT * FROM result_credit WHERE id = :id")
     fun getCredit(id: Int): Single<ResultCredit>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @JvmSuppressWildcards
+    fun insert(movieInfo: List<MovieInfo>)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insert(movieInfo: MovieInfo)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(credit: ResultCredit)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insert(favorite: Favorite)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insert(aboutMovie: AboutMovie)
+
+    @Transaction
+    @JvmSuppressWildcards
+    fun insertOrReplace(movieInfo: MovieInfo){
+        getMovieFavorite(movieInfo.id)?.let {
+            movieInfo.isFavorite = true
+        }
+        insert(movieInfo)
+    }
+
+    @Update
+    fun updateMovie(movieInfo: MovieInfo)
+
+    @Query("UPDATE movieinfo SET isFavorite = :isFavorite WHERE id = :id")
+    fun updateMovie(id: Int, isFavorite: Boolean)
+
+    @Transaction
+    fun updateListFavorite(movie: Movie){
+        updateMovie(movieInfo = movie.convertToMovieInfo())
+        (movie.convertToFavorite()).let {
+            if (movie.isFavorite) insert(it) else deleteFavorite(id = it.id)
+        }
+    }
+
+    @Transaction
+    fun updateListFavorite(aboutMovie: AboutMovie, isFavorite: Boolean){
+        updateMovie(id = aboutMovie.id, isFavorite = isFavorite)
+            aboutMovie.convertToFavorite().let {
+            if (isFavorite) insert(it) else deleteFavorite(id = it.id)
+        }
+    }
+
+    @Query("DELETE FROM movieinfo")
+    fun deleteMovie()
+
+    @Query("DELETE FROM favorite WHERE id = :id")
+    fun deleteFavorite(id: Int)
+
+    @Query( "DELETE FROM info_about_movie WHERE id NOT IN (SELECT id FROM favorite)")
+    fun deleteAboutMovie()
+
+    @Query( "DELETE FROM result_credit WHERE id NOT IN (SELECT id FROM favorite)")
+    fun deleteCredits()
 
     @Transaction
     fun delete(){
@@ -70,12 +96,4 @@ interface MovieDao {
         deleteCredits()
     }
 
-    @Transaction
-    @JvmSuppressWildcards
-    fun insertOrReplace(movie: Movie){
-         getMovieLike(movie.id)?.let {
-             movie.isFavorite = it.isFavorite
-         }
-        insert(movie)
-    }
 }

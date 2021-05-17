@@ -10,9 +10,10 @@ import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.io.movies.R
-import com.io.movies.adapter.PagedAdapterMovie
 import com.io.movies.app.App
+import com.io.movies.comand.FavoriteCommand
 import com.io.movies.comand.MenuListFragmentCommand
+import com.io.movies.comand.RecyclerViewListFragmentCommand
 import com.io.movies.databinding.FragmentListMoviesBinding
 import com.io.movies.model.Movie
 import com.io.movies.ui.activity.IMovie
@@ -36,21 +37,22 @@ class ListMoviesFragment : Fragment() {
         MenuListFragmentCommand()
     }
 
+    private val favoriteCommand by lazy{
+        FavoriteCommand()
+    }
+
+    private val recyclerViewCommand by lazy {
+        val showMovie: (Movie) -> Unit = {movieInfo.openAboutOfMovie(id = it.id, isFavorite = it.isFavorite) }
+        val updateMovie: (Movie) -> Unit = {
+            if (viewModel.isFavoriteMode) viewModel.updateMovie(it)
+            else favoriteCommand.changeFavoriteStateMovie(movie = it)
+        }
+
+        RecyclerViewListFragmentCommand(update = updateMovie,showMovie = showMovie, { viewModel.getLifeData() }, { viewModel.setNullLiveData() })
+    }
+
     @Inject
     lateinit var factory: ViewModelProvider.Factory
-
-    private var mAdapter: PagedAdapterMovie? = null
-
-
-    private val showMovie: (Int, Boolean) -> Unit = { id, isFavorite ->
-        Log.e("AboutMovie","Open")
-        movieInfo.openAboutOfMovie(id = id, isFavorite = isFavorite)
-    }
-
-    private val updateMovie: (Movie) -> Unit = {
-        Log.e("TAG", "movie ${it.title} -> like - ${it.isFavorite}")
-        viewModel.updateMovie(movie = it)
-    }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -60,6 +62,7 @@ class ListMoviesFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         App.appComponent.inject(this)
+        checkNetwork()
     }
 
     override fun onCreateView(
@@ -70,9 +73,8 @@ class ListMoviesFragment : Fragment() {
 
         binding.viewModel = viewModel
 
-        checkNetwork()
-
-        newRecycler()
+        recyclerViewCommand.lifeCycleOwner = viewLifecycleOwner
+        newRecycler(isRestart = false)
 
         return binding.root
     }
@@ -86,28 +88,39 @@ class ListMoviesFragment : Fragment() {
             setHasOptionsMenu(true)
         }
 
-        binding.swipeRefresh.setColorSchemeResources(R.color.purple_200)
-        binding.swipeRefresh.setProgressBackgroundColorSchemeResource(R.color.grey)
 
-        binding.swipeRefresh.setOnRefreshListener {
-            Completable.complete()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe {
-                    Log.e("TAG", "swipe")
-                    checkNetwork()
-                    viewModel.refresh()
-                    viewModel.isRefreshing.set(false)
-                }
+        binding.swipeRefresh.apply {
+            setColorSchemeResources(R.color.purple_200)
+            setProgressBackgroundColorSchemeResource(R.color.grey)
+
+            setOnRefreshListener {
+                Completable.complete()
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe {
+                        Log.e("TAG", "swipe")
+                        updateFavoriteList()
+                        checkNetwork()
+                        viewModel.refresh()
+                        if (viewModel.isFavoriteMode) isRefreshing = false
+                        Log.e("TAG", "swipe isRefresh - ${viewModel.isRefreshing.get()}")
+                    }
+            }
         }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        updateFavoriteList()
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.menu_list, menu)
 
-        menuCommand.searchViewListener(menu.findItem(R.id.action_search).actionView as SearchView){
+        menuCommand.searchViewListener(menu.findItem(R.id.action_search).actionView as SearchView, viewModel.query){
+            updateFavoriteList()
             viewModel.query = it
-            newRecycler()
+            newRecycler(isRestart = true)
         }
 
         menuCommand.favoriteButtonInit(itemNotSelected = menu.findItem(R.id.action_favorite), itemSelected = menu.findItem(R.id.action_favorite_selected))
@@ -115,33 +128,22 @@ class ListMoviesFragment : Fragment() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         menuCommand.onClickFavoriteButton(item.itemId){
+            updateFavoriteList()
             viewModel.isFavoriteMode = it
-            newRecycler()
+            newRecycler(isRestart = true)
         }
         return true
     }
 
-    private fun newRecycler() {
-        if (mAdapter != null) removeRecycler()
-        mAdapter = PagedAdapterMovie(updateMovie, showMovie)
-
-        viewModel.newRecycler(query = viewModel.query)
-
-        Log.e("Recycler", "create")
-       viewModel.newLists!!.observe(viewLifecycleOwner) {
-            Log.e("List", "add new")
-            mAdapter?.submitList(it)
-        }
-
-        binding.moviesRecycler.adapter = mAdapter
+    private fun newRecycler(isRestart: Boolean) {
+        binding.moviesRecycler.adapter = recyclerViewCommand.newRecycler(isRestart = isRestart)
     }
 
-
-    private fun removeRecycler() {
-        Log.e("Recycler", "Remove")
-        viewModel.newLists!!.removeObservers(viewLifecycleOwner)
-        mAdapter?.currentList?.dataSource?.invalidate()
-        mAdapter = null
+    private fun updateFavoriteList(){
+        favoriteCommand.updateListFavorite().let {
+            viewModel.updateMovies(it)
+            it.clear()
+        }
     }
 
     private fun checkNetwork() {
@@ -152,6 +154,5 @@ class ListMoviesFragment : Fragment() {
                 Toast.makeText(requireContext(), "Нет сети", Toast.LENGTH_LONG).show()
             }
         }
-
     }
 }

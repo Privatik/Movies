@@ -8,7 +8,7 @@
 
         <OnSwipe
             app:dragDirection="dragUp"
-            app:touchAnchorId="@id/toolbar"
+            app:touchAnchorId="@id/back_image"
             app:touchAnchorSide="bottom" />
 
     </Transition>
@@ -20,8 +20,7 @@
             android:alpha="1"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintBottom_toTopOf="@id/scroll_view"/>
+            app:layout_constraintStart_toStartOf="parent" />
 
         <Constraint android:id="@id/toolbar"
             android:layout_width="match_parent"
@@ -31,15 +30,6 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintBottom_toBottomOf="@id/back_image"
             app:layout_constraintStart_toStartOf="parent"/>
-
-        <Constraint android:id="@id/scroll_view"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            app:layout_constraintTop_toBottomOf="@id/back_image"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"/>
-
     </ConstraintSet>
 
     <ConstraintSet android:id="@+id/collapsed">
@@ -49,7 +39,6 @@
             android:layout_height="wrap_content"
             android:alpha="0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="@id/toolbar"
             app:layout_constraintEnd_toEndOf="parent" />
 
@@ -59,15 +48,6 @@
             android:alpha="1"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintBottom_toTopOf="@id/scroll_view"/>
-
-        <Constraint android:id="@id/scroll_view"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            app:layout_constraintTop_toBottomOf="@id/toolbar"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"/>
+            app:layout_constraintStart_toStartOf="parent" />
     </ConstraintSet>
 </MotionScene>

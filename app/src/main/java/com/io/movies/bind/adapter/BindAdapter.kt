@@ -34,37 +34,15 @@ fun loadImage(view: ImageView, url: String?) {
         .into(view)
 }
 
-@BindingAdapter("app:isVisibility")
-fun isVisibility(view: View, isNotVisibility: Boolean) {
+@BindingAdapter("app:isVisibilityOrGone")
+fun iisVisibilityOrGone(view: View, isNotVisibility: Boolean) {
    // Log.e("IsVisibility","$isNotVisibility")
     view.visibility = if (isNotVisibility) View.GONE else View.VISIBLE
 }
 
-@BindingAdapter("app:textDate")
-fun textDate(textView: TextView, date: Date?) {
-    if (date != null){
-        textView.text = SimpleDateFormat("dd MMMM yyyy", Locale.US).format(date)
-    } else {
-        textView.text = "-"
-    }
-}
-
-@BindingAdapter("app:textStatus")
-fun textColorStatus(textView: TextView, text: String?){
-    if (text == null) return
-    textView.apply {
-        setTextColor(
-            when (text) {
-                "Rumored" -> Color.BLUE
-                "Planned",
-                "In Production",
-                "Post Production" -> Color.YELLOW
-                "Released" -> Color.GREEN
-                "Canceled" -> Color.RED
-                else -> Color.WHITE
-            }
-        )
-        this.text = text
-    }
+@BindingAdapter("app:isLookIt")
+fun isLookIt(view: View, isNotVisibility: Boolean) {
+    // Log.e("IsVisibility","$isNotVisibility")
+    view.alpha = if (isNotVisibility) 0f else 1f
 }
 

@@ -11,8 +11,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.constraintlayout.helper.widget.Flow
 import androidx.constraintlayout.motion.widget.MotionLayout
 import androidx.constraintlayout.motion.widget.TransitionAdapter
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -21,6 +23,7 @@ import com.io.movies.adapter.RecyclerAdapterCompany
 import com.io.movies.adapter.RecyclerAdapterCredit
 import com.io.movies.app.App
 import com.io.movies.databinding.FragmentMovieBinding
+import com.io.movies.ui.activity.IBackFromAboutMovie
 import com.io.movies.ui.activity.IMovie
 import com.io.movies.ui.activity.MainActivity
 import com.io.movies.util.Config
@@ -41,6 +44,11 @@ class MovieFragment: Fragment() {
     private lateinit var binding: FragmentMovieBinding
 
     private lateinit var aboutMovie: IMovie
+    private lateinit var backFromAboutMovie: IBackFromAboutMovie
+
+    private val viewModel by lazy {
+        ViewModelProvider(this, factory).get(MovieViewModel::class.java)
+    }
 
     @Inject
     lateinit var factory: ViewModelProvider.Factory
@@ -49,12 +57,13 @@ class MovieFragment: Fragment() {
         super.onAttach(context)
 
         aboutMovie = context as IMovie
-
+        backFromAboutMovie = context as IBackFromAboutMovie
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         App.appComponent.inject(this)
+        backFromAboutMovie.backButtonClickable(isClickable = false)
     }
 
     override fun onCreateView(
@@ -64,7 +73,7 @@ class MovieFragment: Fragment() {
     ): View {
 
         binding = FragmentMovieBinding.inflate(inflater, container, false)
-        binding.viewmodel = ViewModelProvider(this, factory).get(MovieViewModel::class.java)
+        binding.viewModel = viewModel
 
         return binding.root
     }
@@ -72,6 +81,8 @@ class MovieFragment: Fragment() {
     @SuppressLint("InflateParams")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        Log.e("TAG","isNotLoad -> ${viewModel.isNotLoad.get()}")
 
         (activity as MainActivity).apply {
             setSupportActionBar(binding.toolbar)
@@ -83,99 +94,84 @@ class MovieFragment: Fragment() {
             binding.toolbar.navigationIcon = ResourcesCompat.getDrawable(resources, R.drawable.ic_baseline_arrow_back_24, null)!!
         }
 
-        requireArguments().getInt(ID).let {
-            binding.viewmodel?.load(it)
-        }
-
-        liveDataListener()
-
-        binding.imdb.setOnClickListener {
-            try {
-                startActivity(
-                    Intent(
-                        Intent.ACTION_VIEW,
-                        Uri.parse("${Config.imdb}${binding.movie?.imdb}")
-                    )
-                )
-            } catch (e: ActivityNotFoundException){
-                Log.e("Error","In MovieFragment in time click site - ${e.message}")
-            }
-        }
-
-        binding.motionLayout.setTransitionListener(object : TransitionAdapter() {
-            override fun onTransitionCompleted(motionLayout: MotionLayout, currentId: Int) {
+        binding.motionLayout.setTransitionListener(object : TransitionAdapter(){
+            override fun onTransitionCompleted(motionLayout: MotionLayout?, currentId: Int) {
                 when (currentId){
-                    R.id.expanded -> {
-
-                    }
                     R.id.collapsed -> {
-
+                        backFromAboutMovie.backButtonClickable(isClickable = true)
+                    }
+                    R.id.expanded -> {
+                        backFromAboutMovie.backButtonClickable(isClickable = false)
                     }
                 }
             }
         })
 
-        binding.site.setOnClickListener {
-            try {
-                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(binding.movie?.homepage)))
-            } catch (e: ActivityNotFoundException){
-                Log.e("Error","In MovieFragment in time click imdb - ${e.message}")
-            }
+        requireArguments().apply {
+            viewModel.load(getInt(ID))
+            liveDataListener(getBoolean(IS_FAVORITE))
         }
 
-        var isFavorite = requireArguments().getBoolean(IS_FAVORITE)
-        binding.favorite.apply {
-            isSelected = isFavorite
-            setOnClickListener {
-                isFavorite = !isFavorite
-                isSelected = isFavorite
-                binding.movie?.id?.let { id -> binding.viewmodel?.updateMovie(id = id, isFavorite = isFavorite) }
-            }
+        binding.mainContent.imdb.setOnClickListener {
+            try { startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("${Config.imdb}${binding.movie?.imdb}"))) }
+            catch (e: ActivityNotFoundException){ Log.e("Error","In MovieFragment in time click site - ${e.message}") }
+        }
+
+        binding.mainContent.site.setOnClickListener {
+            try { startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(binding.movie?.homepage))) }
+            catch (e: ActivityNotFoundException){ Log.e("Error","In MovieFragment in time click imdb - ${e.message}") }
         }
 
     }
 
-    private fun liveDataListener(){
-        binding.viewmodel?.isNotLoad!!.set(true)
-        binding.viewmodel?.updateMovie?.observe(viewLifecycleOwner) {
-           binding.viewmodel?.isNotLoad!!.set(false)
+    private fun liveDataListener(isFavorite: Boolean) {
+        viewModel.isNotLoad.set(true)
+
+        viewModel.updateMovie.observe(viewLifecycleOwner) {
             binding.apply {
+                this@MovieFragment.viewModel.isNotLoad.set(false)
                 movie = it
                 aboutMovie.closeDialogLoadAboutMovie()
-                company.adapter = RecyclerAdapterCompany(it.companies)
+                mainContent.apply {
+                    company.adapter = RecyclerAdapterCompany(it.companies)
 
-                genres.apply {
-
-                    it.genres.forEach { value ->
-                        (LayoutInflater.from(context)
-                            .inflate(R.layout.genres, binding.content, false) as TextView).apply {
-                            text = value.name
-                            id = View.generateViewId()
-                            binding.content.addView(this)
-                            addView(this)
-                        }
-                    }
+                    genres.addTextViews(it.genres.map { genres -> genres.name }, content)
+                    countriesRecalculation.addTextViews(
+                        it.countries.map { country -> country.country },
+                        content
+                    )
                 }
 
-                countriesRecalculation.apply {
-                    it.countries.forEach { value ->
-                        (LayoutInflater.from(context)
-                            .inflate(R.layout.genres, binding.content, false) as TextView).apply {
-                            text = value.country
-                            id = View.generateViewId()
-                            binding.content.addView(this)
-                            addView(this)
-                        }
+                mainContent.favorite.apply {
+                    isSelected = isFavorite
+
+                    setOnClickListener { view ->
+                        isSelected = !isSelected
+
+                        this@MovieFragment.viewModel.updateMovie(
+                            aboutMovie = it,
+                            isFavorite = isSelected
+                        )
                     }
                 }
             }
-        }
 
-        binding.viewmodel?.updateCredit?.observe(viewLifecycleOwner){
-            binding.actors.adapter = RecyclerAdapterCredit(it.cast)
-        }
+            viewModel.updateCredit.observe(viewLifecycleOwner) {
+                binding.mainContent.actors.adapter = RecyclerAdapterCredit(it.cast)
+            }
 
+        }
     }
+}
 
-
+fun Flow.addTextViews(titles: List<String>, content: ConstraintLayout){
+    titles.forEach {
+        (LayoutInflater.from(context)
+            .inflate(R.layout.genres, content, false) as TextView).apply {
+            text = it
+            id = View.generateViewId()
+            content.addView(this)
+            addView(this)
+        }
+    }
 }

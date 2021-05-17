@@ -14,14 +14,21 @@ class MenuListFragmentCommand {
 
     private lateinit var pairFavoriteButton: Pair<MenuItem, MenuItem>
     private var isFavorite: Boolean = false
+    private var search = ""
 
 
-    fun searchViewListener(searchView: SearchView, listener: (String) -> Unit){
+    fun searchViewListener(searchView: SearchView, searchText: String, listener: (String) -> Unit){
+        search  = searchText
+        if (search.isNotEmpty()) {
+            searchView.setQuery(search, false)
+            searchView.isIconified = false
+        }
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             private var subscription: Disposable? = null
 
             override fun onQueryTextSubmit(query: String): Boolean {
                 Log.e("TAG", "submit $query")
+                search = query
                 listener(query)
                 return true
             }
