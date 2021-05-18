@@ -2,8 +2,9 @@ package com.io.movies.bind.adapter
 
 import android.graphics.Color
 import android.widget.TextView
-import androidx.core.widget.NestedScrollView
+import androidx.constraintlayout.motion.widget.MotionLayout
 import androidx.databinding.BindingAdapter
+import com.io.movies.R
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -33,5 +34,16 @@ fun textColorStatus(textView: TextView, text: String?){
             }
         )
         this.text = text
+    }
+}
+
+@BindingAdapter("app:setDescriptionSharingFromUrl")
+fun setDescriptionSharingFromUrl(motionLayout: MotionLayout, isLoadBackImage: Boolean) {
+    motionLayout.apply {
+        if (!isLoadBackImage) {
+            setTransition(R.id.collapsed, R.id.expanded)
+        } else {
+            setTransition(R.id.expanded, R.id.collapsed)
+        }
     }
 }

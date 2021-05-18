@@ -11,7 +11,7 @@ class RecyclerViewListFragmentCommand(
     private val update: (Movie) -> Unit,
     private val showMovie: (Movie) -> Unit,
     private val liveData: () -> LiveData<PagedList<Movie>>,
-    private val setNull:() -> Unit) {
+    private val setNullLiveData:() -> Unit) {
 
     lateinit var lifeCycleOwner: LifecycleOwner
     private var adapterMovie: PagedAdapterMovie? = null
@@ -36,7 +36,7 @@ class RecyclerViewListFragmentCommand(
         if (isRestart){
             Log.e("RecyclerView","set null RecyclerView")
             removeRecyclerViewAdapter()
-            setNull()
+            setNullLiveData()
         }
 
         Log.e("RecyclerView","Restart RecyclerView $adapterMovie")

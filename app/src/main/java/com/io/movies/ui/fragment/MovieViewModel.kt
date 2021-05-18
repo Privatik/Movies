@@ -15,6 +15,7 @@ class MovieViewModel @Inject constructor(
 ): ViewModel() {
 
     val isNotLoad by lazy { ObservableBoolean() }
+    val isLoadBackImage by lazy { ObservableBoolean() }
 
     private val _updateMovie = MutableLiveData<AboutMovie>()
     var updateMovie = _updateMovie
@@ -29,7 +30,6 @@ class MovieViewModel @Inject constructor(
             {
             Log.e("AboutMovie","load - AboutMovie $it")
                 _updateMovie.postValue(it)
-                repository.updateBase(it)
         },{
             Log.e("AboutMovie","error - $it")
         })
@@ -38,7 +38,6 @@ class MovieViewModel @Inject constructor(
             {
                 Log.e("ResultCredit","load - CreditResult")
                 _updateCredit.postValue(it)
-                repository.updateBase(it)
             },{
                 Log.e("ResultCredit","error - $it")
             })

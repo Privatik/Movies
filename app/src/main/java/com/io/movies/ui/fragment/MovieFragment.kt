@@ -23,6 +23,7 @@ import com.io.movies.adapter.RecyclerAdapterCompany
 import com.io.movies.adapter.RecyclerAdapterCredit
 import com.io.movies.app.App
 import com.io.movies.databinding.FragmentMovieBinding
+import com.io.movies.delegate.argument
 import com.io.movies.ui.activity.IBackFromAboutMovie
 import com.io.movies.ui.activity.IMovie
 import com.io.movies.ui.activity.MainActivity
@@ -56,6 +57,7 @@ class MovieFragment: Fragment() {
     override fun onAttach(context: Context) {
         super.onAttach(context)
 
+        val id = id
         aboutMovie = context as IMovie
         backFromAboutMovie = context as IBackFromAboutMovie
     }
@@ -130,6 +132,7 @@ class MovieFragment: Fragment() {
         viewModel.updateMovie.observe(viewLifecycleOwner) {
             binding.apply {
                 this@MovieFragment.viewModel.isNotLoad.set(false)
+                this@MovieFragment.viewModel.isLoadBackImage.set(it.backdrop != null)
                 movie = it
                 aboutMovie.closeDialogLoadAboutMovie()
                 mainContent.apply {

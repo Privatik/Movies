@@ -140,7 +140,7 @@
 
 
         <androidx.constraintlayout.widget.Barrier
-            android:id="@+id/barrier"
+            android:id="@+id/barrier_hat"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:barrierDirection="bottom"
@@ -159,7 +159,7 @@
             app:layout_constrainedWidth="true"
             app:layout_constraintEnd_toEndOf="@id/end_guideline"
             app:layout_constraintStart_toStartOf="@id/start_guideline"
-            app:layout_constraintTop_toBottomOf="@+id/barrier"
+            app:layout_constraintTop_toBottomOf="@+id/barrier_hat"
             tools:text="A ticking-time-bomb insomniac and a slippery soap salesman channel primal male aggression into a shocking new form of therapy. Their concept catches on, with underground fight clubs forming in every town, until an eccentric gets in the way and ignites an out-of-control spiral toward oblivion." />
 
         <TextView
@@ -273,6 +273,13 @@
             app:layout_constraintStart_toStartOf="@+id/budget_amount"
             app:layout_constraintTop_toTopOf="@+id/countries" />
 
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/barrier_country"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:barrierDirection="bottom"
+            app:constraint_referenced_ids="countries_recalculation, countries" />
+
         <TextView
             android:id="@+id/actors_text"
             style="@style/InfoAboutMovie"
@@ -282,7 +289,7 @@
             android:layout_marginTop="8dp"
             android:text="@string/actors"
             app:layout_constraintStart_toStartOf="@id/start_guideline"
-            app:layout_constraintTop_toBottomOf="@id/countries_recalculation" />
+            app:layout_constraintTop_toBottomOf="@id/barrier_country" />
 
 
         <androidx.recyclerview.widget.RecyclerView

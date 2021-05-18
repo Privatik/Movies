@@ -15,10 +15,10 @@ interface MovieDao {
     @Query("SELECT * FROM movieinfo WHERE title LIKE :search")
     fun getMovieListPagingSearch(search: String): DataSource.Factory<Int, MovieInfo>
 
-    @Query("SELECT * FROM favorite")
+    @Query("SELECT * FROM favorite ORDER BY `order` DESC")
     fun getMovieListPagingFavorite(): DataSource.Factory<Int, Favorite>
 
-    @Query("SELECT * FROM favorite WHERE title LIKE :search")
+    @Query("SELECT * FROM favorite WHERE title LIKE :search ORDER BY `order` DESC")
     fun getMovieListPagingFavoriteSearch(search: String): DataSource.Factory<Int, Favorite>
 
     @Query("SELECT id FROM favorite WHERE id = :id")

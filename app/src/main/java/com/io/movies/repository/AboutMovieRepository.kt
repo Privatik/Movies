@@ -14,23 +14,23 @@ class AboutMovieRepository @Inject constructor(
     private val database: MovieDao
 ) {
 
-    fun updateBase(aboutMovie: AboutMovie){
-         database.insert(aboutMovie = aboutMovie)
-    }
-
-    fun updateBase(credit: ResultCredit){
-         database.insert(credit = credit)
-    }
-
     fun updateMovieFavorite(aboutMovie: AboutMovie, isFavorite: Boolean) = database.updateListFavorite(aboutMovie = aboutMovie, isFavorite = isFavorite)
 
-    fun loadMovie(id: Int): Single<AboutMovie> = database.getMovie(id = id)
-            .onErrorResumeNext( aboutMovieService.getMovie(movieId = id) )
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
+    fun loadMovie(id: Int): Single<AboutMovie> = aboutMovieService.getMovie(movieId = id)
+        .flatMap { movie ->
+            database.insert(aboutMovie = movie)
+            Single.just(movie)
+        }
+        .onErrorResumeNext( database.getMovie(id = id) )
+        .subscribeOn(Schedulers.io())
+        .observeOn(AndroidSchedulers.mainThread())
 
-    fun loadCredit(id: Int): Single<ResultCredit> = database.getCredit(id = id)
-        .onErrorResumeNext( aboutMovieService.getCredits(movieId = id))
+    fun loadCredit(id: Int): Single<ResultCredit> = aboutMovieService.getCredits(movieId = id)
+        .flatMap { credit ->
+            database.insert(credit = credit)
+            Single.just(credit)
+        }
+        .onErrorResumeNext( database.getCredit(id = id))
         .subscribeOn(Schedulers.io())
         .observeOn(AndroidSchedulers.mainThread())
 }
