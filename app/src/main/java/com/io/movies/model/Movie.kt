@@ -1,5 +1,6 @@
 package com.io.movies.model
 
+import android.util.Log
 import androidx.room.*
 import com.google.gson.annotations.SerializedName
 
@@ -62,21 +63,21 @@ data class Favorite(
 
 fun Movie.convertToFavorite(): Favorite =
     Favorite(
-        id = this.id,
-        order = this.order,
-        title = this.title,
-        poster = this.poster,
-        voteAverage = this.voteAverage,
-        releaseDate = this.releaseDate,
+        order,
+        id,
+        title,
+        poster,
+        voteAverage,
+        releaseDate
     )
 
 fun Movie.convertToMovieInfo(): MovieInfo =
     MovieInfo(
-        id = this.id,
-        order = this.order,
-        title = this.title,
-        poster = this.poster,
-        voteAverage = this.voteAverage,
-        releaseDate = this.releaseDate,
-        isFavorite = this.isFavorite
+        order,
+        id,
+        title,
+        poster,
+        voteAverage,
+        releaseDate,
+        isFavorite
     )

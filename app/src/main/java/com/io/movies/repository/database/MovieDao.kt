@@ -55,15 +55,14 @@ interface MovieDao {
         insert(movieInfo)
     }
 
-    @Update
-    fun updateMovie(movieInfo: MovieInfo)
-
     @Query("UPDATE movieinfo SET isFavorite = :isFavorite WHERE id = :id")
     fun updateMovie(id: Int, isFavorite: Boolean)
 
     @Transaction
     fun updateListFavorite(movie: Movie){
-        updateMovie(movieInfo = movie.convertToMovieInfo())
+        movie.convertToMovieInfo().apply {
+            updateMovie(id = id, isFavorite = isFavorite)
+        }
         (movie.convertToFavorite()).let {
             if (movie.isFavorite) insert(it) else deleteFavorite(id = it.id)
         }

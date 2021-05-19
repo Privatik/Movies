@@ -88,7 +88,6 @@ class ListMoviesFragment : Fragment() {
             setHasOptionsMenu(true)
         }
 
-
         binding.swipeRefresh.apply {
             setColorSchemeResources(R.color.purple_200)
             setProgressBackgroundColorSchemeResource(R.color.grey)

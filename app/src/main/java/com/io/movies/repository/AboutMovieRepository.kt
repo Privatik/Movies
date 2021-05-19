@@ -1,5 +1,6 @@
 package com.io.movies.repository
 
+import android.util.Log
 import com.io.movies.model.AboutMovie
 import com.io.movies.model.ResultCredit
 import com.io.movies.repository.database.MovieDao
@@ -14,7 +15,10 @@ class AboutMovieRepository @Inject constructor(
     private val database: MovieDao
 ) {
 
-    fun updateMovieFavorite(aboutMovie: AboutMovie, isFavorite: Boolean) = database.updateListFavorite(aboutMovie = aboutMovie, isFavorite = isFavorite)
+    fun updateMovieFavorite(aboutMovie: AboutMovie, isFavorite: Boolean) {
+        Log.e("UpdateMovie","title: ${aboutMovie.title} isFavorite: ${isFavorite}")
+        database.updateListFavorite(aboutMovie = aboutMovie, isFavorite = isFavorite)
+    }
 
     fun loadMovie(id: Int): Single<AboutMovie> = aboutMovieService.getMovie(movieId = id)
         .flatMap { movie ->
