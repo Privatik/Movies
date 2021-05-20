@@ -27,7 +27,7 @@ class AboutMovieRepository @Inject constructor(
         }
         .onErrorResumeNext( database.getMovie(id = id) )
         .subscribeOn(Schedulers.io())
-        .observeOn(AndroidSchedulers.mainThread())
+       // .observeOn(AndroidSchedulers.mainThread())
 
     fun loadCredit(id: Int): Single<ResultCredit> = aboutMovieService.getCredits(movieId = id)
         .flatMap { credit ->
@@ -36,5 +36,5 @@ class AboutMovieRepository @Inject constructor(
         }
         .onErrorResumeNext( database.getCredit(id = id))
         .subscribeOn(Schedulers.io())
-        .observeOn(AndroidSchedulers.mainThread())
+       // .observeOn(AndroidSchedulers.mainThread())
 }

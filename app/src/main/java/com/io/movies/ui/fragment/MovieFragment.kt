@@ -57,7 +57,6 @@ class MovieFragment: Fragment() {
     override fun onAttach(context: Context) {
         super.onAttach(context)
 
-        val id = id
         aboutMovie = context as IMovie
         backFromAboutMovie = context as IBackFromAboutMovie
     }
@@ -65,7 +64,6 @@ class MovieFragment: Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         App.appComponent.inject(this)
-        backFromAboutMovie.backButtonClickable(isClickable = false)
     }
 
     override fun onCreateView(
@@ -100,10 +98,15 @@ class MovieFragment: Fragment() {
             override fun onTransitionCompleted(motionLayout: MotionLayout?, currentId: Int) {
                 when (currentId){
                     R.id.collapsed -> {
+                        Log.e("Motion","anim collapsed")
                         backFromAboutMovie.backButtonClickable(isClickable = true)
                     }
                     R.id.expanded -> {
+                        Log.e("Motion","anim expanded")
                         backFromAboutMovie.backButtonClickable(isClickable = false)
+                    }
+                    else -> {
+                        Log.e("Motion","anim else")
                     }
                 }
             }
@@ -133,6 +136,7 @@ class MovieFragment: Fragment() {
             binding.apply {
                 this@MovieFragment.viewModel.isNotLoad.set(false)
                 this@MovieFragment.viewModel.isLoadBackImage.set(it.backdrop != null)
+                if (it.backdrop != null) backFromAboutMovie.backButtonClickable(isClickable = false)
                 movie = it
                 aboutMovie.closeDialogLoadAboutMovie()
                 mainContent.apply {

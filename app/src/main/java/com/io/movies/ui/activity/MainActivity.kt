@@ -8,6 +8,7 @@ import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.databinding.DataBindingUtil
+import androidx.fragment.app.FragmentTransaction
 import androidx.fragment.app.add
 import androidx.fragment.app.commit
 import androidx.fragment.app.replace
@@ -49,14 +50,26 @@ class MainActivity : AppCompatActivity(), IMovie, IBackFromAboutMovie {
     override fun openAboutOfMovie(id: Int, isFavorite: Boolean) {
         supportFragmentManager.commit {
             setReorderingAllowed(true)
+            setCustomAnimations(
+                R.anim.slide_in,
+                R.anim.fade_out,
+                R.anim.fade_in,
+                R.anim.slide_out
+            )
+
+            replace<MovieFragment>(
+                R.id.fragment_container_view,
+                args = MovieFragment.newInstanceBundle(id = id, isFavorite = isFavorite)
+            )
             addToBackStack(null)
-            replace<MovieFragment>(R.id.fragment_container_view, args = MovieFragment.newInstanceBundle(id = id, isFavorite = isFavorite))
         }
 
         dialogController.openDialogLoadAboutMovie()
     }
 
-    override fun closeDialogLoadAboutMovie() = dialogController.closeDialogLoadAboutMovie()
+
+    override fun closeDialogLoadAboutMovie()
+     = dialogController.closeDialogLoadAboutMovie()
 
     override fun backButtonClickable(isClickable: Boolean) {
         isClickableBackButtonInMovieFragment = isClickable

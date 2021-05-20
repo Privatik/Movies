@@ -81,7 +81,7 @@ class MovieRepository @Inject constructor(
         isRefreshing.set(true)
 
         observer.subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
+                //.observeOn(AndroidSchedulers.mainThread())
                 .subscribe({
                   //  Log.e("TAG","save new page $it")
                     //database.movieDao().insert(it.movies)

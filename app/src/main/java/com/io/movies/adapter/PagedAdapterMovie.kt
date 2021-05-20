@@ -3,9 +3,11 @@ package com.io.movies.adapter
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.view.animation.AnimationUtils
 import androidx.paging.PagedListAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import com.io.movies.R
 import com.io.movies.databinding.ItemMovieInfoBinding
 import com.io.movies.model.Movie
 
@@ -24,8 +26,11 @@ class PagedAdapterMovie constructor(private val update: (Movie) -> Unit, private
             holder.binding.apply {
                 this.movie = movie
                 holder.bind()
-                root.setOnClickListener {
-                    showMovie(movie)
+                root.apply {
+                    animation = AnimationUtils.loadAnimation(context, R.anim.slide_item_movie)
+                    setOnClickListener {
+                        showMovie(movie)
+                    }
                 }
 
                 favorite.setOnClickListener {
