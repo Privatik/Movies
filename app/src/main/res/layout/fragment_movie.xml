@@ -17,7 +17,6 @@
         android:id="@+id/motion_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:isVisibilityOrGone="@{viewModel.isNotLoad()}"
         app:setDescriptionSharingFromUrl="@{viewModel.isLoadBackImage()}"
         app:layoutDescription="@xml/collapsing_about_movie">
 

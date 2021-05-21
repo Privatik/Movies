@@ -1,5 +1,6 @@
 package com.io.movies.model
 
+import android.os.Parcelable
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
@@ -7,10 +8,12 @@ import androidx.room.TypeConverters
 import com.google.gson.annotations.SerializedName
 import com.io.movies.repository.database.DateTypeConverter
 import com.io.movies.repository.database.MovieAboutTypeConverter
+import kotlinx.parcelize.Parcelize
 import java.text.SimpleDateFormat
 import java.util.*
 
 @Entity(tableName = "info_about_movie")
+@Parcelize
 @TypeConverters(DateTypeConverter::class, MovieAboutTypeConverter::class)
 data class AboutMovie(
     @SerializedName("id")
@@ -58,24 +61,27 @@ data class AboutMovie(
     @SerializedName("production_countries")
     @ColumnInfo(name = "production_countries")
     val countries: List<Country>
-)
+): Parcelable
 
+@Parcelize
 data class Genres(
     @SerializedName("name")
     val name: String,
-)
+): Parcelable
 
+@Parcelize
 data class Company(
     @SerializedName("logo_path")
     val logo: String?,
     @SerializedName("name")
     val name: String
-)
+): Parcelable
 
+@Parcelize
 data class Country(
     @SerializedName("iso_3166_1")
     val country: String
-)
+): Parcelable
 
 fun AboutMovie.convertToFavorite(): Favorite{
     return Favorite(

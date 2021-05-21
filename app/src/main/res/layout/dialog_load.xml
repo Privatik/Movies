@@ -1,15 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.lsjwzh.widget.materialloadingprogressbar.CircleProgressBar android:id="@+id/progressBar"
-    app:mlpb_enable_circle_background="false"
-    app:mlpb_show_arrow="true"
-
-    app:mlpb_arrow_height="5dp"
-    app:mlpb_arrow_width="10dp"
+<ProgressBar android:id="@+id/progressBar"
     android:layout_gravity="center"
-    app:mlpb_inner_radius="5dp"
-    app:mlpb_progress_color="@color/purple_200"
-    app:mlpb_progress_stoke_width="10dp"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
+    android:layout_width="50dp"
+    android:layout_height="50dp"
+    android:indeterminateTint="@color/purple_200"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto" />

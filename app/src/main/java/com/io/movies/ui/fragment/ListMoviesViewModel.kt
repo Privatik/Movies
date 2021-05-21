@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.util.Log
 import androidx.databinding.ObservableBoolean
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.paging.LivePagedListBuilder
 import androidx.paging.PagedList
@@ -16,10 +17,14 @@ class ListMoviesViewModel @Inject constructor(
 ) : ViewModel() {
 
     var newLists: LiveData<PagedList<Movie>>? = null
-    var isFavoriteMode = false
-    var isConnect: Boolean = true
+
+    private val _isFavoriteMode: MutableLiveData<Boolean> = MutableLiveData(false)
+    val isFavoriteMode: LiveData<Boolean> = _isFavoriteMode
+
+    private val _query: MutableLiveData<String> = MutableLiveData("")
+    val query: LiveData<String> = _query
+
     val isRefreshing by lazy { ObservableBoolean() }
-    var query = ""
 
     private val config by lazy {
         PagedList.Config.Builder()
@@ -31,6 +36,14 @@ class ListMoviesViewModel @Inject constructor(
 
     init {
         movieRepository.postParameters(isRefreshing)
+    }
+
+    fun postFavorite(isFavoriteMode: Boolean){
+        _isFavoriteMode.postValue(isFavoriteMode)
+    }
+
+    fun postQuery(query: String){
+        _query.postValue(query)
     }
 
     fun updateMovies(movies: List<Movie>){
@@ -50,15 +63,15 @@ class ListMoviesViewModel @Inject constructor(
 
     fun getLifeData(): LiveData<PagedList<Movie>> {
         if (newLists == null) {
-            newLIfeData()
+            newLifeData()
         }
         return newLists!!
     }
 
-    private fun newLIfeData(){
+    private fun newLifeData(){
         val live = LivePagedListBuilder(movieRepository.factory(query = query, isFavoriteMode = isFavoriteMode), config)
 
-        if (!isFavoriteMode && isConnect) {
+        if (isFavoriteMode) {
             movieRepository.updateQuery(query = query)
             live.setBoundaryCallback(
                 movieRepository.callback()
@@ -67,16 +80,37 @@ class ListMoviesViewModel @Inject constructor(
         newLists = live.build()
     }
 
+    fun updateQuery(){
+        if (isFavoriteMode.value!!){
+            onFavoriteMode()
+        } else {
+            offFavoriteMode()
+        }
+    }
+
+    fun onFavoriteMode(){
+        newLists =  LivePagedListBuilder(movieRepository.factory(query = query.value!!), config)
+            .build()
+    }
+
+    fun offFavoriteMode(){
+        newLists =  LivePagedListBuilder(movieRepository.factory(query = query.value!!), config)
+            .setBoundaryCallback(movieRepository.callback())
+            .build()
+    }
+
     @SuppressLint("CheckResult")
     fun refresh(){
-        if (isConnect) {
-            movieRepository.refresh()
-            deleteBase()
-        }
+        movieRepository.refresh()
+        deleteBase()
     }
 
     @SuppressLint("CheckResult")
     fun deleteBase() {
         movieRepository.delete()
+    }
+
+    override fun onCleared() {
+        super.onCleared()
     }
 }

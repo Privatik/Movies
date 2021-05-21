@@ -1,15 +1,8 @@
 package com.io.movies.ui.activity
 
-import android.annotation.SuppressLint
 import android.os.Bundle
-import android.util.Log
-import android.view.Menu
-import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.SearchView
 import androidx.databinding.DataBindingUtil
-import androidx.fragment.app.FragmentTransaction
-import androidx.fragment.app.add
 import androidx.fragment.app.commit
 import androidx.fragment.app.replace
 import androidx.lifecycle.ViewModelProvider
@@ -17,13 +10,8 @@ import com.io.movies.R
 import com.io.movies.controller.LoadDialogController
 import com.io.movies.databinding.ActivityMainBinding
 import com.io.movies.ui.fragment.MovieFragment
-import io.reactivex.Observable
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.Disposable
-import io.reactivex.schedulers.Schedulers
-import java.util.concurrent.TimeUnit
 
-class MainActivity : AppCompatActivity(), IMovie, IBackFromAboutMovie {
+class MainActivity : AppCompatActivity(), IDialog, IBackFromAboutMovie {
 
     private lateinit var binding: ActivityMainBinding
 
@@ -48,6 +36,13 @@ class MainActivity : AppCompatActivity(), IMovie, IBackFromAboutMovie {
     }
 
     override fun openAboutOfMovie(id: Int, isFavorite: Boolean) {
+        dialogController.openDialogLoadAboutMovie(id = id, isFavorite = isFavorite)
+    }
+
+
+    override fun closeDialogLoadAboutMovie(bundle: Bundle){
+        dialogController.closeDialogLoadAboutMovie()
+
         supportFragmentManager.commit {
             setReorderingAllowed(true)
             setCustomAnimations(
@@ -59,17 +54,11 @@ class MainActivity : AppCompatActivity(), IMovie, IBackFromAboutMovie {
 
             replace<MovieFragment>(
                 R.id.fragment_container_view,
-                args = MovieFragment.newInstanceBundle(id = id, isFavorite = isFavorite)
+                args = bundle
             )
             addToBackStack(null)
         }
-
-        dialogController.openDialogLoadAboutMovie()
     }
-
-
-    override fun closeDialogLoadAboutMovie()
-     = dialogController.closeDialogLoadAboutMovie()
 
     override fun backButtonClickable(isClickable: Boolean) {
         isClickableBackButtonInMovieFragment = isClickable
@@ -77,9 +66,9 @@ class MainActivity : AppCompatActivity(), IMovie, IBackFromAboutMovie {
 
 }
 
-interface IMovie{
+interface IDialog{
     fun openAboutOfMovie(id: Int, isFavorite: Boolean)
-    fun closeDialogLoadAboutMovie()
+    fun closeDialogLoadAboutMovie(bundle: Bundle)
 }
 
 interface IBackFromAboutMovie{

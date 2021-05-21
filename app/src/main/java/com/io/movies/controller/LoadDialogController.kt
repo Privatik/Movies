@@ -1,31 +1,18 @@
 package com.io.movies.controller
 
-import android.content.DialogInterface
 import android.util.Log
 import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.add
-import androidx.fragment.app.commit
-import com.io.movies.R
 import com.io.movies.ui.dialog.LoadDialog
-import com.io.movies.ui.fragment.MovieFragment
 
 class LoadDialogController(private val myFragmentManager: FragmentManager) {
 
     private var dialog: LoadDialog? = null
 
-    fun openDialogLoadAboutMovie() {
+    fun openDialogLoadAboutMovie(id: Int, isFavorite: Boolean) {
         Log.e("LoadDialog","open")
 
-        dialog = LoadDialog().apply {
+        dialog = LoadDialog.newInstance(id = id, isFavorite = isFavorite).apply {
             show(myFragmentManager, "AboutMovie")
-            onCancel(object : DialogInterface {
-                override fun cancel() {   }
-
-                override fun dismiss() {
-                    myFragmentManager.popBackStack()
-                }
-
-            })
         }
     }
 

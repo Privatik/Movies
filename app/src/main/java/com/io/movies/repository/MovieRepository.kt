@@ -56,7 +56,7 @@ class MovieRepository @Inject constructor(
     @SuppressLint("CheckResult")
     fun delete() = database.delete()
 
-    fun factory(query: String, isFavoriteMode: Boolean): DataSource.Factory<Int, Movie> {
+    fun factory(query: String, isFavoriteMode: Boolean = false): DataSource.Factory<Int, Movie> {
         return if (isFavoriteMode) factoryFavorite(query = query)
         else factoryMovieInfo(query = query)
     }

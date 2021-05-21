@@ -23,9 +23,8 @@ import com.io.movies.adapter.RecyclerAdapterCompany
 import com.io.movies.adapter.RecyclerAdapterCredit
 import com.io.movies.app.App
 import com.io.movies.databinding.FragmentMovieBinding
-import com.io.movies.delegate.argument
+import com.io.movies.model.AboutMovie
 import com.io.movies.ui.activity.IBackFromAboutMovie
-import com.io.movies.ui.activity.IMovie
 import com.io.movies.ui.activity.MainActivity
 import com.io.movies.util.Config
 import javax.inject.Inject
@@ -33,19 +32,17 @@ import javax.inject.Inject
 class MovieFragment: Fragment() {
 
     companion object {
-        private const val ID = "id"
+        private const val MOVIE = "movie"
         private const val IS_FAVORITE = "isFavorite"
 
-        fun newInstanceBundle(id: Int, isFavorite: Boolean): Bundle = Bundle().apply {
-                    putInt(ID, id)
+        fun setAndGetBundle(movie: AboutMovie, isFavorite: Boolean): Bundle = Bundle().apply {
+                    putParcelable(MOVIE, movie)
                     putBoolean(IS_FAVORITE, isFavorite)
                 }
     }
 
     private lateinit var binding: FragmentMovieBinding
-
-    private lateinit var aboutMovie: IMovie
-    private lateinit var backFromAboutMovie: IBackFromAboutMovie
+    private lateinit var backButtonFromToolbarFromAboutMovie: IBackFromAboutMovie
 
     private val viewModel by lazy {
         ViewModelProvider(this, factory).get(MovieViewModel::class.java)
@@ -57,8 +54,7 @@ class MovieFragment: Fragment() {
     override fun onAttach(context: Context) {
         super.onAttach(context)
 
-        aboutMovie = context as IMovie
-        backFromAboutMovie = context as IBackFromAboutMovie
+        backButtonFromToolbarFromAboutMovie = context as IBackFromAboutMovie
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -82,8 +78,6 @@ class MovieFragment: Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        Log.e("TAG","isNotLoad -> ${viewModel.isNotLoad.get()}")
-
         (activity as MainActivity).apply {
             setSupportActionBar(binding.toolbar)
             supportActionBar?.let {
@@ -99,11 +93,11 @@ class MovieFragment: Fragment() {
                 when (currentId){
                     R.id.collapsed -> {
                         Log.e("Motion","anim collapsed")
-                        backFromAboutMovie.backButtonClickable(isClickable = true)
+                        backButtonFromToolbarFromAboutMovie.backButtonClickable(isClickable = true)
                     }
                     R.id.expanded -> {
                         Log.e("Motion","anim expanded")
-                        backFromAboutMovie.backButtonClickable(isClickable = false)
+                        backButtonFromToolbarFromAboutMovie.backButtonClickable(isClickable = false)
                     }
                     else -> {
                         Log.e("Motion","anim else")
@@ -112,9 +106,10 @@ class MovieFragment: Fragment() {
             }
         })
 
-        requireArguments().apply {
-            viewModel.load(getInt(ID))
-            liveDataListener(getBoolean(IS_FAVORITE))
+        initFragment()
+
+        viewModel.updateCredit.observe(viewLifecycleOwner) {
+            binding.mainContent.actors.adapter = RecyclerAdapterCredit(it.cast)
         }
 
         binding.mainContent.imdb.setOnClickListener {
@@ -129,44 +124,46 @@ class MovieFragment: Fragment() {
 
     }
 
-    private fun liveDataListener(isFavorite: Boolean) {
-        viewModel.isNotLoad.set(true)
-
-        viewModel.updateMovie.observe(viewLifecycleOwner) {
+    private fun initFragment() {
+        requireArguments().apply {
             binding.apply {
-                this@MovieFragment.viewModel.isNotLoad.set(false)
-                this@MovieFragment.viewModel.isLoadBackImage.set(it.backdrop != null)
-                if (it.backdrop != null) backFromAboutMovie.backButtonClickable(isClickable = false)
-                movie = it
-                aboutMovie.closeDialogLoadAboutMovie()
-                mainContent.apply {
-                    company.adapter = RecyclerAdapterCompany(it.companies)
+                movie = (getParcelable(MOVIE) as? AboutMovie)?.also {
+                    this@MovieFragment.viewModel.apply {
+                        load(it.id)
+                        (it.backdrop != null).let { isHaveBackImage ->
+                            isLoadBackImage.set(isHaveBackImage)
+                            backButtonFromToolbarFromAboutMovie.backButtonClickable(!isHaveBackImage)
+                        }
+                    }
 
-                    genres.addTextViews(it.genres.map { genres -> genres.name }, content)
-                    countriesRecalculation.addTextViews(
-                        it.countries.map { country -> country.country },
-                        content
-                    )
-                }
 
-                mainContent.favorite.apply {
-                    isSelected = isFavorite
+                    mainContent.apply {
+                        company.adapter = RecyclerAdapterCompany(it.companies)
 
-                    setOnClickListener { view ->
-                        isSelected = !isSelected
-
-                        this@MovieFragment.viewModel.updateMovie(
-                            aboutMovie = it,
-                            isFavorite = isSelected
+                        genres.addTextViews(
+                            it.genres.map { genres -> genres.name },
+                            content
                         )
+                        countriesRecalculation.addTextViews(
+                            it.countries.map { country -> country.country },
+                            content
+                        )
+
+                        favorite.apply {
+                            isSelected = getBoolean(IS_FAVORITE)
+
+                            setOnClickListener { _ ->
+                                isSelected = !isSelected
+
+                                this@MovieFragment.viewModel.updateMovie(
+                                    aboutMovie = it,
+                                    isFavorite = isSelected
+                                )
+                            }
+                        }
                     }
                 }
             }
-
-            viewModel.updateCredit.observe(viewLifecycleOwner) {
-                binding.mainContent.actors.adapter = RecyclerAdapterCredit(it.cast)
-            }
-
         }
     }
 }
