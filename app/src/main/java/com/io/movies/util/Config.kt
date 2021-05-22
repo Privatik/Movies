@@ -16,13 +16,12 @@ object Config {
 
 
     fun isOnline(context: Context): LiveData<Boolean> {
-        val liveData: MutableLiveData<Boolean> = MutableLiveData(true)
+        val liveData: MutableLiveData<Boolean> = MutableLiveData()
 
         val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
 
         val builder = NetworkRequest.Builder()
-        builder.addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR)
-        builder.addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
+        builder.addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
 
         val networkRequest = builder.build()
         connectivityManager.registerNetworkCallback(networkRequest,

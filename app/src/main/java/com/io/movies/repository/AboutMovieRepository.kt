@@ -16,7 +16,7 @@ class AboutMovieRepository @Inject constructor(
 ) {
 
     fun updateMovieFavorite(aboutMovie: AboutMovie, isFavorite: Boolean) {
-        Log.e("UpdateMovie","title: ${aboutMovie.title} isFavorite: ${isFavorite}")
+        Log.e("UpdateMovie","title: ${aboutMovie.title} isFavorite: $isFavorite")
         database.updateListFavorite(aboutMovie = aboutMovie, isFavorite = isFavorite)
     }
 
@@ -27,7 +27,6 @@ class AboutMovieRepository @Inject constructor(
         }
         .onErrorResumeNext( database.getMovie(id = id) )
         .subscribeOn(Schedulers.io())
-       // .observeOn(AndroidSchedulers.mainThread())
 
     fun loadCredit(id: Int): Single<ResultCredit> = aboutMovieService.getCredits(movieId = id)
         .flatMap { credit ->
@@ -36,5 +35,4 @@ class AboutMovieRepository @Inject constructor(
         }
         .onErrorResumeNext( database.getCredit(id = id))
         .subscribeOn(Schedulers.io())
-       // .observeOn(AndroidSchedulers.mainThread())
 }

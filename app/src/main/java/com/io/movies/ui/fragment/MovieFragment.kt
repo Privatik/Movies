@@ -106,28 +106,45 @@ class MovieFragment: Fragment() {
             }
         })
 
-        initFragment()
+        requireArguments().apply {
+            (getParcelable(MOVIE) as? AboutMovie)?.let {
+                initAboutMovie(it)
+
+                binding.favorite.apply {
+                    isSelected = getBoolean(IS_FAVORITE)
+
+                    setOnClickListener { _ ->
+                        isSelected = !isSelected
+
+                        this@MovieFragment.viewModel.updateMovie(
+                            aboutMovie = it,
+                            isFavorite = isSelected
+                        )
+                    }
+                }
+            }
+        }
 
         viewModel.updateCredit.observe(viewLifecycleOwner) {
-            binding.mainContent.actors.adapter = RecyclerAdapterCredit(it.cast)
+            binding.actors.adapter = RecyclerAdapterCredit(it.cast)
         }
 
-        binding.mainContent.imdb.setOnClickListener {
-            try { startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("${Config.imdb}${binding.movie?.imdb}"))) }
-            catch (e: ActivityNotFoundException){ Log.e("Error","In MovieFragment in time click site - ${e.message}") }
-        }
+        binding.apply {
+            imdb.setOnClickListener {
+                try { startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("${Config.imdb}${binding.movie?.imdb}"))) }
+                catch (e: ActivityNotFoundException){ Log.e("Error","In MovieFragment in time click site - ${e.message}") }
+            }
 
-        binding.mainContent.site.setOnClickListener {
-            try { startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(binding.movie?.homepage))) }
-            catch (e: ActivityNotFoundException){ Log.e("Error","In MovieFragment in time click imdb - ${e.message}") }
+            site.setOnClickListener {
+                try { startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(binding.movie?.homepage))) }
+                catch (e: ActivityNotFoundException){ Log.e("Error","In MovieFragment in time click imdb - ${e.message}") }
+            }
         }
-
     }
 
-    private fun initFragment() {
-        requireArguments().apply {
-            binding.apply {
-                movie = (getParcelable(MOVIE) as? AboutMovie)?.also {
+    private fun initAboutMovie(aboutMovie: AboutMovie) {
+        binding.apply {
+                movie = aboutMovie.also {
                     this@MovieFragment.viewModel.apply {
                         load(it.id)
                         (it.backdrop != null).let { isHaveBackImage ->
@@ -136,8 +153,6 @@ class MovieFragment: Fragment() {
                         }
                     }
 
-
-                    mainContent.apply {
                         company.adapter = RecyclerAdapterCompany(it.companies)
 
                         genres.addTextViews(
@@ -148,22 +163,7 @@ class MovieFragment: Fragment() {
                             it.countries.map { country -> country.country },
                             content
                         )
-
-                        favorite.apply {
-                            isSelected = getBoolean(IS_FAVORITE)
-
-                            setOnClickListener { _ ->
-                                isSelected = !isSelected
-
-                                this@MovieFragment.viewModel.updateMovie(
-                                    aboutMovie = it,
-                                    isFavorite = isSelected
-                                )
-                            }
-                        }
-                    }
                 }
-            }
         }
     }
 }

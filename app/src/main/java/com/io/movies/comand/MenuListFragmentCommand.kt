@@ -35,8 +35,6 @@ class MenuListFragmentCommand {
                 }
 
                 subscription = Observable.timer(800, TimeUnit.MILLISECONDS)
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
                     .subscribe {
                         onQueryTextSubmit(newText)
                     }
@@ -46,11 +44,11 @@ class MenuListFragmentCommand {
         })
     }
 
-    fun favoriteButtonInit(favoriteButton: MenuItem, favoriteButtonSelected: MenuItem, isFavorite: Boolean){
-        if (!isFavorite) {
-            favoriteButtonSelected.isVisible = false
-        } else {
+    fun favoriteButtonInit(favoriteButton: MenuItem, favoriteButtonSelected: MenuItem, isFavorite: Boolean?){
+        if (isFavorite != null && isFavorite) {
             favoriteButton.isVisible = false
+        } else {
+            favoriteButtonSelected.isVisible = false
         }
 
         this.favoriteButton = favoriteButton

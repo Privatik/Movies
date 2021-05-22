@@ -2,9 +2,8 @@ package com.io.movies.viewmodelfactory
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.io.movies.ui.dialog.LoadViewModel
-import com.io.movies.ui.fragment.MovieViewModel
 import com.io.movies.ui.fragment.ListMoviesViewModel
+import com.io.movies.ui.fragment.MovieViewModel
 import dagger.Binds
 import dagger.MapKey
 import dagger.Module
@@ -41,9 +40,4 @@ abstract class ViewModelModule {
     @IntoMap
     @ViewModelKey(MovieViewModel::class)
     internal abstract fun postMovieViewModel(viewModel: MovieViewModel): ViewModel
-
-    @Binds
-    @IntoMap
-    @ViewModelKey(LoadViewModel::class)
-    internal abstract fun postLoadViewModel(viewModel: LoadViewModel): ViewModel
 }
