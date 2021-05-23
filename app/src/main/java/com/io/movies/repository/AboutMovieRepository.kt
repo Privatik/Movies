@@ -7,6 +7,7 @@ import com.io.movies.repository.database.MovieDao
 import com.io.movies.repository.network.MovieService
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
 
@@ -15,9 +16,20 @@ class AboutMovieRepository @Inject constructor(
     private val database: MovieDao
 ) {
 
+    private var disposableAboutMovie: Disposable? = null
+    private var disposableResultCredit: Disposable? = null
+
     fun updateMovieFavorite(aboutMovie: AboutMovie, isFavorite: Boolean) {
         Log.e("UpdateMovie","title: ${aboutMovie.title} isFavorite: $isFavorite")
         database.updateListFavorite(aboutMovie = aboutMovie, isFavorite = isFavorite)
+    }
+
+    fun setDisposableAboutMovie(disposable: Disposable){
+        disposableAboutMovie = disposable
+    }
+
+    fun setDisposableResultCredit(disposable: Disposable){
+        disposableResultCredit = disposable
     }
 
     fun loadMovie(id: Int): Single<AboutMovie> = aboutMovieService.getMovie(movieId = id)
@@ -35,4 +47,9 @@ class AboutMovieRepository @Inject constructor(
         }
         .onErrorResumeNext( database.getCredit(id = id))
         .subscribeOn(Schedulers.io())
+
+    fun clear(){
+        disposableAboutMovie?.dispose()
+        disposableResultCredit?.dispose()
+    }
 }

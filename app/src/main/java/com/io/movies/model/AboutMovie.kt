@@ -13,7 +13,6 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 @Entity(tableName = "info_about_movie")
-@Parcelize
 @TypeConverters(DateTypeConverter::class, MovieAboutTypeConverter::class)
 data class AboutMovie(
     @SerializedName("id")
@@ -61,27 +60,26 @@ data class AboutMovie(
     @SerializedName("production_countries")
     @ColumnInfo(name = "production_countries")
     val countries: List<Country>
-): Parcelable
+)
 
-@Parcelize
 data class Genres(
     @SerializedName("name")
     val name: String,
-): Parcelable
+)
 
-@Parcelize
+
 data class Company(
     @SerializedName("logo_path")
     val logo: String?,
     @SerializedName("name")
     val name: String
-): Parcelable
+)
 
-@Parcelize
+
 data class Country(
     @SerializedName("iso_3166_1")
     val country: String
-): Parcelable
+)
 
 fun AboutMovie.convertToFavorite(): Favorite{
     return Favorite(

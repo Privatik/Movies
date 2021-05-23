@@ -5,6 +5,7 @@ import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
 import android.net.NetworkRequest
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 
@@ -15,28 +16,38 @@ object Config {
     const val imdb = "https://www.imdb.com/title/"
 
 
-    fun isOnline(context: Context): LiveData<Boolean> {
-        val liveData: MutableLiveData<Boolean> = MutableLiveData()
+    var isConnect: Boolean? = null
 
-        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
 
-        val builder = NetworkRequest.Builder()
-        builder.addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+    private var connectivityManager: ConnectivityManager? = null
 
-        val networkRequest = builder.build()
-        connectivityManager.registerNetworkCallback(networkRequest,
-            object : ConnectivityManager.NetworkCallback (){
-                override fun onAvailable(network: Network) {
-                    super.onAvailable(network)
-                    liveData.postValue(true)
-                }
+    fun isOnline(context: Context? = null): LiveData<Boolean>?{
+        if (connectivityManager == null && context == null) return null
+        if (connectivityManager == null) connectivityManager = context!!.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        return isOnline
+    }
 
-                override fun onLost(network: Network) {
-                    super.onLost(network)
-                    liveData.postValue(false)
-                }
-            })
+    private val isOnline: LiveData<Boolean> by lazy {
+        MutableLiveData<Boolean>().apply {
+            val builder = NetworkRequest.Builder()
+            builder.addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
 
-        return liveData
+            val networkRequest = builder.build()
+
+            connectivityManager!!.registerNetworkCallback(networkRequest,
+                object : ConnectivityManager.NetworkCallback (){
+                    override fun onAvailable(network: Network) {
+                        super.onAvailable(network)
+                        isConnect = true
+                        postValue(true)
+                    }
+
+                    override fun onLost(network: Network) {
+                        super.onLost(network)
+                        isConnect = false
+                        postValue(false)
+                    }
+                })
+        }
     }
 }

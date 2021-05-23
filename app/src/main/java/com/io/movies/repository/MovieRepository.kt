@@ -10,7 +10,6 @@ import com.io.movies.paging.MovieBoundaryCallback
 import com.io.movies.repository.database.MovieDao
 import com.io.movies.repository.network.MovieService
 import io.reactivex.Single
-import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
@@ -82,6 +81,7 @@ class MovieRepository @Inject constructor(
                     isRefreshing.set(false)
                     Log.e("TAG","End load")
                 },{
+                    isRefreshing.set(false)
                     Log.e("Paging","Repository method load: ${it.message}")
                 })
     }
@@ -91,10 +91,6 @@ class MovieRepository @Inject constructor(
 
     fun updateQuery(query: String = ""){
         boundaryCallback.update(query = query)
-    }
-
-    fun refresh(){
-        boundaryCallback.refresh()
     }
 
     fun clear(){

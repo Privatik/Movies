@@ -17,6 +17,7 @@
         android:id="@+id/motion_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        app:isVisibilityOrGone="@{viewModel.isLoadAboutMovie()}"
         app:setDescriptionSharingFromUrl="@{viewModel.isLoadBackImage()}"
         app:layoutDescription="@xml/collapsing_about_movie">
 
@@ -172,6 +173,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     app:barrierDirection="bottom"
+                    tools:visibility="gone"
                     app:constraint_referenced_ids="poster, eighteen_plus" />
 
                 <TextView
@@ -307,6 +309,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     app:barrierDirection="bottom"
+                    tools:visibility="gone"
                     app:constraint_referenced_ids="countries_recalculation, countries" />
 
                 <TextView

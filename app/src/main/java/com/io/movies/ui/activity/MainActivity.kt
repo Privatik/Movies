@@ -3,6 +3,7 @@ package com.io.movies.ui.activity
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.io.movies.R
+import com.io.movies.util.Config
 
 class MainActivity : AppCompatActivity(), IBackFromAboutMovie {
 

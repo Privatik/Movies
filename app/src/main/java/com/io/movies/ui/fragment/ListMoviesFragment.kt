@@ -6,11 +6,7 @@ import android.view.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.commit
-import androidx.fragment.app.replace
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModelProvider
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.snackbar.Snackbar
 import com.io.movies.R
 import com.io.movies.app.App
@@ -37,13 +33,9 @@ class ListMoviesFragment : Fragment() {
 
     private val recyclerViewCommand by lazy {
         val update: (Movie) -> Unit ={ viewModel.updateFavoriteStateMovie(it) }
-        val loadAboutMovie: (Movie) -> Unit ={ viewModel.load(it)}
 
-        RecyclerViewListFragmentCommand(update = update, loadAboutMovie = loadAboutMovie,isLoad = viewModel.isLoadAboutMovie)
+        RecyclerViewListFragmentCommand(update = update, fragmentManager = parentFragmentManager,isLoad = viewModel.isLoadAboutMovie)
     }
-
-    private var isConnect: Boolean = true
-    var isStartApp = true
 
     @Inject
     lateinit var factory: ViewModelProvider.Factory
@@ -61,7 +53,6 @@ class ListMoviesFragment : Fragment() {
         binding = FragmentListMoviesBinding.inflate(inflater, container, false)
 
         binding.viewModel = viewModel
-        viewModel.isLoadAboutMovie.set(false)
 
         return binding.root
     }
@@ -74,33 +65,15 @@ class ListMoviesFragment : Fragment() {
             supportActionBar?.setDisplayShowTitleEnabled(false)
             setHasOptionsMenu(true)
         }
-
         connectLiveData()
-        loadAboutMovieLiveData()
 
         swipeRefreshLoad()
-    }
-
-
-    override fun onStop() {
-        super.onStop()
-        viewModel.updateMovies()
-    }
-
-    override fun onDestroyView() {
-        viewModel.scrollY = (binding.moviesRecycler.layoutManager as LinearLayoutManager).findFirstCompletelyVisibleItemPosition()
-        Log.e("Scroll","${viewModel.scrollY}")
-        viewModel.setNullParamsLiveDatas()
-        binding.unbind()
-        menuCommand.clear()
-        recyclerViewCommand.removeRecyclerViewAdapter()
-        super.onDestroyView()
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.menu_list, menu)
 
-        menuCommand.searchViewListener(menu.findItem(R.id.action_search).actionView as SearchView, viewModel.query.value!!){
+        menuCommand.searchViewListener(menu.findItem(R.id.action_search).actionView as SearchView, viewModel.getQuery()){
             viewModel.apply {
                 updateMovies()
                 postQuery(it)
@@ -110,7 +83,7 @@ class ListMoviesFragment : Fragment() {
         menuCommand.favoriteButtonInit(
             favoriteButton = menu.findItem(R.id.action_favorite),
             favoriteButtonSelected = menu.findItem(R.id.action_favorite_selected),
-            isFavorite = viewModel.isFavoriteMode.value
+            isFavorite = viewModel.getIsFavorite()
         )
     }
 
@@ -124,6 +97,19 @@ class ListMoviesFragment : Fragment() {
         return true
     }
 
+    override fun onStop() {
+        super.onStop()
+        viewModel.updateMovies()
+    }
+
+    override fun onDestroyView() {
+        viewModel.isLoadAboutMovie.set(false)
+        binding.unbind()
+        menuCommand.clear()
+        recyclerViewCommand.removeRecyclerViewAdapter()
+        super.onDestroyView()
+    }
+
     private fun swipeRefreshLoad() {
         binding.swipeRefresh.apply {
             setColorSchemeResources(R.color.purple_200)
@@ -134,8 +120,8 @@ class ListMoviesFragment : Fragment() {
                     .subscribe {
                         Log.e("TAG", "swipe")
                         viewModel.updateMovies()
-                        if (viewModel.isFavoriteMode.value == null || (!viewModel.isFavoriteMode.value!!)) {
-                            if (isConnect) viewModel.refresh()
+                        if (!viewModel.getIsFavorite()) {
+                            if (Config.isConnect == true) viewModel.refresh()
                         } else {
                             isRefreshing = false
                         }
@@ -145,75 +131,51 @@ class ListMoviesFragment : Fragment() {
     }
 
     private fun connectLiveData(){
-        var isRestart = true
-
-        Config.isOnline(requireContext()).observe(viewLifecycleOwner){
-            if (isStartApp){
-                if (it) viewModel.deleteBase()
-
-                isStartApp = false
-            }
-            if (isRestart){
-                viewModel.apply {
-                    initLiveData(liveData = query)
-                    postFavorite(null)
-                    initLiveData(liveData = isFavoriteMode)
-                }
-
-                isRestart = false
-            }
-
-            Log.e("Connect","new connect $it")
-            isConnect = it
-            if (!it) Snackbar.make(binding.root,"No network",Snackbar.LENGTH_SHORT).show()
+        val isNotConnect: () -> Unit = {
+            Snackbar.make(binding.root, "No network", Snackbar.LENGTH_SHORT).show()
         }
+
+        val updateLoad: () -> Unit = {
+            recyclerViewCommand.invalidate()
+        }
+
+        val firstStart: () -> Unit = {
+            recyclerViewLiveData()
+        }
+
+        if(Config.isConnect == true){
+            firstStart()
+        }
+
+        viewModel.isConnect(
+            liveDataConnect = Config.isOnline(requireContext().applicationContext)!!,
+            isNotConnect = isNotConnect,
+            updateLoad = updateLoad,
+            firstStart = firstStart)
     }
 
 
-    private fun initLiveData(liveData: LiveData<*>){
-        liveData.observe(viewLifecycleOwner){
+    private fun recyclerViewLiveData(){
+        viewModel.mediatorUpdateRecyclerView.observe(viewLifecycleOwner){
             if (it == null) return@observe
-            newRecycler(updateLiveData = {viewModel.updateQuery()})
+            newRecycler()
         }
     }
 
-    private fun newRecycler(updateLiveData: () -> Unit) {
-        if ( binding.moviesRecycler.adapter != null) {
-            viewModel.apply {
-                if (newLists != null) {
-                    newLists!!.removeObservers(viewLifecycleOwner)
-                    newLists = null
-                }
+    private fun newRecycler() {
+        viewModel.apply {
+            if (newLists?.hasObservers() == true) {
+                Log.e("UpdateRecycler","newList set null")
+                newLists!!.removeObservers(viewLifecycleOwner)
+                newLists = null
             }
         }
 
-        updateLiveData()
-        Log.e("RecyclerView","new create ${viewModel.newLists}")
+        viewModel.updateQuery()
+        Log.e("RecyclerView","new create Recycler")
         binding.moviesRecycler.adapter = recyclerViewCommand.newRecyclerViewAdapter().also {  adapter ->
             viewModel.newLists?.observe(viewLifecycleOwner){
                 adapter.submitList(it)
-            }
-        }
-    }
-
-    private fun loadAboutMovieLiveData(){
-        viewModel.loadAboutMovie.observe(viewLifecycleOwner){
-            if (it == null) return@observe
-            Log.e("Tag","open aboutMovie")
-            activity?.supportFragmentManager?.commit {
-                setReorderingAllowed(true)
-                setCustomAnimations(
-                    R.anim.slide_in,
-                    R.anim.fade_out,
-                    R.anim.fade_in,
-                    R.anim.slide_out
-                )
-
-                replace<MovieFragment>(
-                    R.id.fragment_container_view,
-                    args = MovieFragment.setAndGetBundle(it.first, it.second)
-                )
-                addToBackStack(null)
             }
         }
     }

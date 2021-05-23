@@ -32,17 +32,17 @@ import javax.inject.Inject
 class MovieFragment: Fragment() {
 
     companion object {
-        private const val MOVIE = "movie"
+        private const val ID = "id"
         private const val IS_FAVORITE = "isFavorite"
 
-        fun setAndGetBundle(movie: AboutMovie, isFavorite: Boolean): Bundle = Bundle().apply {
-                    putParcelable(MOVIE, movie)
+        fun setAndGetBundle(id: Int, isFavorite: Boolean): Bundle = Bundle().apply {
+                    putInt(ID, id)
                     putBoolean(IS_FAVORITE, isFavorite)
                 }
     }
 
     private lateinit var binding: FragmentMovieBinding
-    private lateinit var backButtonFromToolbarFromAboutMovie: IBackFromAboutMovie
+    private var backButtonFromToolbarFromAboutMovie: IBackFromAboutMovie? = null
 
     private val viewModel by lazy {
         ViewModelProvider(this, factory).get(MovieViewModel::class.java)
@@ -93,11 +93,11 @@ class MovieFragment: Fragment() {
                 when (currentId){
                     R.id.collapsed -> {
                         Log.e("Motion","anim collapsed")
-                        backButtonFromToolbarFromAboutMovie.backButtonClickable(isClickable = true)
+                        backButtonFromToolbarFromAboutMovie?.backButtonClickable(isClickable = true)
                     }
                     R.id.expanded -> {
                         Log.e("Motion","anim expanded")
-                        backButtonFromToolbarFromAboutMovie.backButtonClickable(isClickable = false)
+                        backButtonFromToolbarFromAboutMovie?.backButtonClickable(isClickable = false)
                     }
                     else -> {
                         Log.e("Motion","anim else")
@@ -106,23 +106,8 @@ class MovieFragment: Fragment() {
             }
         })
 
-        requireArguments().apply {
-            (getParcelable(MOVIE) as? AboutMovie)?.let {
-                initAboutMovie(it)
-
-                binding.favorite.apply {
-                    isSelected = getBoolean(IS_FAVORITE)
-
-                    setOnClickListener { _ ->
-                        isSelected = !isSelected
-
-                        this@MovieFragment.viewModel.updateMovie(
-                            aboutMovie = it,
-                            isFavorite = isSelected
-                        )
-                    }
-                }
-            }
+        viewModel.loadAboutMovie.observe(viewLifecycleOwner){
+            initAboutMovie(it)
         }
 
         viewModel.updateCredit.observe(viewLifecycleOwner) {
@@ -140,41 +125,66 @@ class MovieFragment: Fragment() {
                 catch (e: ActivityNotFoundException){ Log.e("Error","In MovieFragment in time click imdb - ${e.message}") }
             }
         }
+
+        viewModel.load(requireArguments().getInt(ID))
+    }
+
+    override fun onStart() {
+        super.onStart()
+        Log.e("FragmentMovie","OnStart")
+    }
+
+    override fun onResume() {
+        super.onResume()
+        Log.e("FragmentMovie","OnResume")
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        backButtonFromToolbarFromAboutMovie = null
     }
 
     private fun initAboutMovie(aboutMovie: AboutMovie) {
         binding.apply {
-                movie = aboutMovie.also {
-                    this@MovieFragment.viewModel.apply {
-                        load(it.id)
-                        (it.backdrop != null).let { isHaveBackImage ->
-                            isLoadBackImage.set(isHaveBackImage)
-                            backButtonFromToolbarFromAboutMovie.backButtonClickable(!isHaveBackImage)
-                        }
+            movie = aboutMovie.also {
+                this@MovieFragment.viewModel.apply {
+                    (it.backdrop != null).let { isHaveBackImage ->
+                        isLoadBackImage.set(isHaveBackImage)
+                        backButtonFromToolbarFromAboutMovie?.backButtonClickable(!isHaveBackImage)
                     }
-
-                        company.adapter = RecyclerAdapterCompany(it.companies)
-
-                        genres.addTextViews(
-                            it.genres.map { genres -> genres.name },
-                            content
-                        )
-                        countriesRecalculation.addTextViews(
-                            it.countries.map { country -> country.country },
-                            content
-                        )
                 }
+
+                company.adapter = RecyclerAdapterCompany(it.companies)
+
+                genres.addTextViews(it.genres.map { genres -> genres.name })
+                countriesRecalculation.addTextViews(it.countries.map { country -> country.country })
+
+                binding.favorite.apply {
+                    isSelected = requireArguments().getBoolean(IS_FAVORITE)
+
+                    setOnClickListener { _ ->
+                        isSelected = !isSelected
+
+                        this@MovieFragment.viewModel.updateMovie(
+                            aboutMovie = it,
+                            isFavorite = isSelected
+                        )
+                    }
+                }
+            }
         }
+
+        viewModel.isLoadAboutMovie.set(false)
     }
 }
 
-fun Flow.addTextViews(titles: List<String>, content: ConstraintLayout){
+fun Flow.addTextViews(titles: List<String>){
     titles.forEach {
         (LayoutInflater.from(context)
-            .inflate(R.layout.genres, content, false) as TextView).apply {
+            .inflate(R.layout.genres, parent as ConstraintLayout, false) as TextView).apply {
             text = it
             id = View.generateViewId()
-            content.addView(this)
+            (parent as ConstraintLayout).addView(this)
             addView(this)
         }
     }

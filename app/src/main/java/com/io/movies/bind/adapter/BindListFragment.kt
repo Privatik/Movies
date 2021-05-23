@@ -27,8 +27,3 @@ fun notEnabledForLoad(view: View, isLoad: Boolean) {
     view.isClickable = !isLoad
     view.isEnabled = !isLoad
 }
-
-@BindingAdapter("app:scrollTo")
-fun scrollTo(recyclerView: RecyclerView, y: Int) {
-    recyclerView.layoutManager?.scrollToPosition(y)
-}

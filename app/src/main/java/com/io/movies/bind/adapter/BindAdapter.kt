@@ -40,9 +40,3 @@ fun iisVisibilityOrGone(view: View, isNotVisibility: Boolean) {
     view.visibility = if (isNotVisibility) View.GONE else View.VISIBLE
 }
 
-@BindingAdapter("app:isLookIt")
-fun isLookIt(view: View, isNotVisibility: Boolean) {
-    // Log.e("IsVisibility","$isNotVisibility")
-    view.alpha = if (isNotVisibility) 0f else 1f
-}
-
