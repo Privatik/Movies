@@ -34,15 +34,20 @@ fun loadImage(view: ImageView, url: String?) {
         .into(view)
 }
 
-@BindingAdapter("app:isVisibilityOrGone")
-fun iisVisibilityOrGone(view: View, isNotVisibility: Boolean) {
-   // Log.e("IsVisibility","$isNotVisibility")
+@BindingAdapter("app:isGoneOrVisibility")
+fun isGoneOrVisibility(view: View, isNotVisibility: Boolean) {
     view.visibility = if (isNotVisibility) View.GONE else View.VISIBLE
 }
 
+<<<<<<< Updated upstream
 @BindingAdapter("app:isLookIt")
 fun isLookIt(view: View, isNotVisibility: Boolean) {
     // Log.e("IsVisibility","$isNotVisibility")
     view.alpha = if (isNotVisibility) 0f else 1f
+=======
+@BindingAdapter("app:isVisibilityOrGone")
+fun isVisibilityOrGone(view: View, isVisibility: Boolean) {
+    view.visibility = if (isVisibility) View.VISIBLE else View.GONE
+>>>>>>> Stashed changes
 }
 

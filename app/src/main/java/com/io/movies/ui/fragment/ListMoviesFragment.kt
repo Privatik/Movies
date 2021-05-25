@@ -87,7 +87,16 @@ class ListMoviesFragment : Fragment() {
             supportActionBar?.setDisplayShowTitleEnabled(false)
             setHasOptionsMenu(true)
         }
+<<<<<<< Updated upstream
 
+=======
+        connectLiveData()
+
+        swipeRefreshLoad()
+    }
+
+    private fun swipeRefreshLoad() {
+>>>>>>> Stashed changes
         binding.swipeRefresh.apply {
             setColorSchemeResources(R.color.purple_200)
             setProgressBackgroundColorSchemeResource(R.color.grey)
@@ -108,18 +117,34 @@ class ListMoviesFragment : Fragment() {
         }
     }
 
+<<<<<<< Updated upstream
     override fun onStop() {
         super.onStop()
         updateFavoriteList()
     }
+=======
+    private fun connectLiveData(){
+        val isNotConnect: () -> Unit = {
+              Snackbar.make(binding.root, "No network", Snackbar.LENGTH_SHORT).show()
+        }
+
+        val updateLoad: () -> Unit = {
+            recyclerViewCommand.invalidate()
+        }
+>>>>>>> Stashed changes
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.menu_list, menu)
 
+<<<<<<< Updated upstream
         menuCommand.searchViewListener(menu.findItem(R.id.action_search).actionView as SearchView, viewModel.query){
             updateFavoriteList()
             viewModel.query = it
             newRecycler(isRestart = true)
+=======
+        if(Config.isConnect != null){
+            firstStart()
+>>>>>>> Stashed changes
         }
 
         menuCommand.favoriteButtonInit(itemNotSelected = menu.findItem(R.id.action_favorite), itemSelected = menu.findItem(R.id.action_favorite_selected))
@@ -134,6 +159,7 @@ class ListMoviesFragment : Fragment() {
         return true
     }
 
+<<<<<<< Updated upstream
     private fun newRecycler(isRestart: Boolean) {
         binding.moviesRecycler.adapter = recyclerViewCommand.newRecycler(isRestart = isRestart)
     }
@@ -142,6 +168,56 @@ class ListMoviesFragment : Fragment() {
         favoriteCommand.updateListFavorite().let {
             viewModel.updateMovies(it)
             it.clear()
+=======
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.menu_list, menu)
+
+        menuCommand.searchViewListener(menu.findItem(R.id.action_search).actionView as SearchView, viewModel.getQuery()){
+            viewModel.apply {
+                updateMovies()
+                postQuery(it)
+            }
+        }
+
+        menuCommand.favoriteButtonInit(
+            favoriteButton = menu.findItem(R.id.action_favorite),
+            favoriteButtonSelected = menu.findItem(R.id.action_favorite_selected),
+            isFavorite = viewModel.getIsFavorite()
+        )
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        menuCommand.onClickFavoriteButton(item.itemId){
+            viewModel.apply {
+                updateMovies()
+                postFavorite(it)
+            }
+        }
+        return true
+    }
+
+    override fun onStop() {
+        super.onStop()
+        viewModel.updateMovies()
+        viewModel.isLoadAboutMovie.apply { if (get()) set(false) }
+    }
+
+    override fun onDestroyView() {
+        binding.unbind()
+        menuCommand.clear()
+        viewModel.clear()
+        recyclerViewCommand.removeRecyclerViewAdapter()
+        super.onDestroyView()
+    }
+
+    private fun newRecycler() {
+        viewModel.apply {
+            if (newLists?.hasObservers() == true) {
+                Log.e("UpdateRecycler","newList set null")
+                newLists!!.removeObservers(viewLifecycleOwner)
+                newLists = null
+            }
+>>>>>>> Stashed changes
         }
     }
 

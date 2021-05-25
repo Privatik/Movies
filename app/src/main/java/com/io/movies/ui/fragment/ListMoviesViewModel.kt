@@ -58,11 +58,34 @@ class ListMoviesViewModel @Inject constructor(
     private fun newLIfeData(){
         val live = LivePagedListBuilder(movieRepository.factory(query = query, isFavoriteMode = isFavoriteMode), config)
 
+<<<<<<< Updated upstream
         if (!isFavoriteMode && isConnect) {
             movieRepository.updateQuery(query = query)
             live.setBoundaryCallback(
                 movieRepository.callback()
             )
+=======
+        if(observableConnect == null) {
+            observableConnect = Observer {
+                Log.e("Connect", "new connect $it")
+                if (it == null) return@Observer
+                if (isFirstStart) {
+                    if (it) deleteBase()
+                    else isNotConnect()
+                    isFirstStart = false
+                    firstStart()
+                }
+                else {
+                    if (it){
+                        movieRepository.boundaryCallback.newConnectNetwork()
+                        updateLoad()
+                    }
+                    else {
+                        isNotConnect()
+                    }
+                }
+            }
+>>>>>>> Stashed changes
         }
         newLists = live.build()
     }
@@ -79,4 +102,17 @@ class ListMoviesViewModel @Inject constructor(
     fun deleteBase() {
         movieRepository.delete()
     }
+<<<<<<< Updated upstream
+=======
+
+    fun clear(){
+        observableConnect?.let { Config.isOnline()?.removeObserver(it) }
+    }
+
+    override fun onCleared() {
+        clear()
+        movieRepository.clear()
+        super.onCleared()
+    }
+>>>>>>> Stashed changes
 }

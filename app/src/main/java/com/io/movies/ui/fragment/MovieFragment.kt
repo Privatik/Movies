@@ -28,6 +28,9 @@ import com.io.movies.ui.activity.IBackFromAboutMovie
 import com.io.movies.ui.activity.IMovie
 import com.io.movies.ui.activity.MainActivity
 import com.io.movies.util.Config
+import io.reactivex.Observable
+import io.reactivex.disposables.Disposable
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class MovieFragment: Fragment() {
@@ -46,6 +49,8 @@ class MovieFragment: Fragment() {
 
     private lateinit var aboutMovie: IMovie
     private lateinit var backFromAboutMovie: IBackFromAboutMovie
+
+    private var loadDisposable: Disposable? = null
 
     private val viewModel by lazy {
         ViewModelProvider(this, factory).get(MovieViewModel::class.java)
@@ -127,6 +132,7 @@ class MovieFragment: Fragment() {
             catch (e: ActivityNotFoundException){ Log.e("Error","In MovieFragment in time click imdb - ${e.message}") }
         }
 
+<<<<<<< Updated upstream
     }
 
     private fun liveDataListener(isFavorite: Boolean) {
@@ -151,6 +157,30 @@ class MovieFragment: Fragment() {
 
                 mainContent.favorite.apply {
                     isSelected = isFavorite
+=======
+        loadDisposable = Observable.timer(500, TimeUnit.MILLISECONDS).subscribe{
+            viewModel.load(requireArguments().getInt(ID))
+        }
+    }
+
+    private fun initAboutMovie(aboutMovie: AboutMovie) {
+        binding.apply {
+            movie = aboutMovie.also {
+                this@MovieFragment.viewModel.apply {
+                    (it.backdrop != null).let { isHaveBackImage ->
+                        isLoadBackImage.set(isHaveBackImage)
+                        backButtonFromToolbarFromAboutMovie?.backButtonClickable(!isHaveBackImage)
+                    }
+                }
+
+                company.adapter = RecyclerAdapterCompany(it.companies)
+
+                genres.addTextViews(it.genres.map { genres -> genres.name }, content)
+                countriesRecalculation.addTextViews(it.countries.map { country -> country.country }, content)
+
+                binding.favorite.apply {
+                    isSelected = requireArguments().getBoolean(IS_FAVORITE)
+>>>>>>> Stashed changes
 
                     setOnClickListener { view ->
                         isSelected = !isSelected
@@ -169,8 +199,21 @@ class MovieFragment: Fragment() {
 
         }
     }
+
+    override fun onDestroyView() {
+        loadDisposable?.dispose()
+        super.onDestroyView()
+    }
+
+
+
+    override fun onDetach() {
+        super.onDetach()
+        backButtonFromToolbarFromAboutMovie = null
+    }
 }
 
+<<<<<<< Updated upstream
 fun Flow.addTextViews(titles: List<String>, content: ConstraintLayout){
     titles.forEach {
         (LayoutInflater.from(context)
@@ -178,6 +221,15 @@ fun Flow.addTextViews(titles: List<String>, content: ConstraintLayout){
             text = it
             id = View.generateViewId()
             content.addView(this)
+=======
+fun Flow.addTextViews(titles: List<String>, constraintLayout: ConstraintLayout){
+    titles.forEach {
+        (LayoutInflater.from(context)
+            .inflate(R.layout.genres, constraintLayout, false) as TextView).apply {
+            text = it
+            id = View.generateViewId()
+            constraintLayout.addView(this)
+>>>>>>> Stashed changes
             addView(this)
         }
     }
