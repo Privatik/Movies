@@ -6,7 +6,6 @@ import com.io.movies.model.ResultCredit
 import com.io.movies.repository.database.MovieDao
 import com.io.movies.repository.network.MovieService
 import io.reactivex.Single
-import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject

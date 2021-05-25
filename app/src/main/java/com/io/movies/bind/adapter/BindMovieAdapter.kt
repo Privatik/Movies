@@ -37,8 +37,8 @@ fun textColorStatus(textView: TextView, text: String?){
     }
 }
 
-@BindingAdapter("app:setDescriptionSharingFromUrl")
-fun setDescriptionSharingFromUrl(motionLayout: MotionLayout, isLoadBackImage: Boolean) {
+@BindingAdapter("app:setDescriptionSharingFromImage")
+fun setDescriptionSharingFromImage(motionLayout: MotionLayout, isLoadBackImage: Boolean) {
     motionLayout.apply {
         if (!isLoadBackImage) {
             setTransition(R.id.collapsed, R.id.expanded)

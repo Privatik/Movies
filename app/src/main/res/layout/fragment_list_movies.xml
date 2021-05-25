@@ -30,24 +30,6 @@
             app:layout_constraintTop_toTopOf="parent"
             tools:menu="@menu/menu_list" />
 
-        <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:translationZ="2dp"
-            app:loadState="@{viewModel.isLoadAboutMovie()}"
-            android:background="@color/grey_des_alpha">
-
-            <ProgressBar
-                android:id="@+id/progressBar"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:layout_gravity="center"
-                android:translationZ="2dp"
-                android:indeterminateTint="@color/purple_200"
-                />
-
-        </FrameLayout>
-
         <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
             android:id="@+id/swipe_refresh"
             android:layout_width="match_parent"
