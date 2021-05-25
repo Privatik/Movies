@@ -110,9 +110,11 @@ class ListMoviesViewModel @Inject constructor(
             .setBoundaryCallback(movieRepository.boundaryCallback)
             .build()
 
+<<<<<<< HEAD
         Log.e("FavoriteMode","off")
     }
 
+<<<<<<< HEAD
     //Контроль сети
     fun isConnect(liveDataConnect: LiveData<Boolean>,
                   isNotConnect: () -> Unit,
@@ -121,6 +123,22 @@ class ListMoviesViewModel @Inject constructor(
 
         if(observableConnect == null) {
             observableConnect = Observer {
+=======
+<<<<<<< Updated upstream
+=======
+>>>>>>> parent of e4ab3c6 (update work app)
+        if (!isFavoriteMode && isConnect) {
+            movieRepository.updateQuery(query = query)
+            live.setBoundaryCallback(
+                movieRepository.callback()
+            )
+<<<<<<< HEAD
+=======
+        if(observableConnect == null) {
+            observableConnect = Observer {
+                Log.e("Connect", "new connect $it")
+                if (it == null) return@Observer
+>>>>>>> main
                 if (isFirstStart) {
                     if (it) deleteBase()
                     else isNotConnect()
@@ -136,8 +154,15 @@ class ListMoviesViewModel @Inject constructor(
                         isNotConnect()
                     }
                 }
+<<<<<<< HEAD
                 Log.e("Connect", "new connect $it")
             }
+=======
+            }
+>>>>>>> Stashed changes
+>>>>>>> main
+=======
+>>>>>>> parent of e4ab3c6 (update work app)
         }
 
         liveDataConnect.observeForever(observableConnect!!)
@@ -154,10 +179,29 @@ class ListMoviesViewModel @Inject constructor(
     fun deleteBase() {
         movieRepository.delete()
     }
+<<<<<<< HEAD
+<<<<<<< HEAD
 
     override fun onCleared() {
         observableConnect?.let { Config.isOnline()?.removeObserver(it) }
         movieRepository.clear()
         super.onCleared()
     }
+=======
+<<<<<<< Updated upstream
+=======
+
+    fun clear(){
+        observableConnect?.let { Config.isOnline()?.removeObserver(it) }
+    }
+
+    override fun onCleared() {
+        clear()
+        movieRepository.clear()
+        super.onCleared()
+    }
+>>>>>>> Stashed changes
+>>>>>>> main
+=======
+>>>>>>> parent of e4ab3c6 (update work app)
 }

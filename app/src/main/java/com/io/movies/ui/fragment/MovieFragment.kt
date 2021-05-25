@@ -126,6 +126,8 @@ class MovieFragment: Fragment() {
             }
         }
 
+<<<<<<< HEAD
+<<<<<<< HEAD
         viewModel.load(requireArguments().getInt(ID))
     }
 
@@ -137,6 +139,11 @@ class MovieFragment: Fragment() {
     override fun onResume() {
         super.onResume()
         Log.e("FragmentMovie","OnResume")
+=======
+<<<<<<< Updated upstream
+>>>>>>> main
+=======
+>>>>>>> parent of e4ab3c6 (update work app)
     }
 
     override fun onDetach() {
@@ -154,6 +161,7 @@ class MovieFragment: Fragment() {
                     }
                 }
 
+<<<<<<< HEAD
                 company.adapter = RecyclerAdapterCompany(it.companies)
 
                 genres.addTextViews(it.genres.map { genres -> genres.name })
@@ -161,6 +169,37 @@ class MovieFragment: Fragment() {
 
                 binding.favorite.apply {
                     isSelected = requireArguments().getBoolean(IS_FAVORITE)
+=======
+                mainContent.favorite.apply {
+                    isSelected = isFavorite
+<<<<<<< HEAD
+=======
+        loadDisposable = Observable.timer(500, TimeUnit.MILLISECONDS).subscribe{
+            viewModel.load(requireArguments().getInt(ID))
+        }
+    }
+
+    private fun initAboutMovie(aboutMovie: AboutMovie) {
+        binding.apply {
+            movie = aboutMovie.also {
+                this@MovieFragment.viewModel.apply {
+                    (it.backdrop != null).let { isHaveBackImage ->
+                        isLoadBackImage.set(isHaveBackImage)
+                        backButtonFromToolbarFromAboutMovie?.backButtonClickable(!isHaveBackImage)
+                    }
+                }
+
+                company.adapter = RecyclerAdapterCompany(it.companies)
+
+                genres.addTextViews(it.genres.map { genres -> genres.name }, content)
+                countriesRecalculation.addTextViews(it.countries.map { country -> country.country }, content)
+
+                binding.favorite.apply {
+                    isSelected = requireArguments().getBoolean(IS_FAVORITE)
+>>>>>>> Stashed changes
+>>>>>>> main
+=======
+>>>>>>> parent of e4ab3c6 (update work app)
 
                     setOnClickListener { _ ->
                         isSelected = !isSelected
@@ -178,13 +217,37 @@ class MovieFragment: Fragment() {
     }
 }
 
+<<<<<<< HEAD
+<<<<<<< HEAD
 fun Flow.addTextViews(titles: List<String>){
+=======
+<<<<<<< Updated upstream
+=======
+>>>>>>> parent of e4ab3c6 (update work app)
+fun Flow.addTextViews(titles: List<String>, content: ConstraintLayout){
+>>>>>>> main
     titles.forEach {
         (LayoutInflater.from(context)
             .inflate(R.layout.genres, parent as ConstraintLayout, false) as TextView).apply {
             text = it
             id = View.generateViewId()
+<<<<<<< HEAD
             (parent as ConstraintLayout).addView(this)
+=======
+            content.addView(this)
+<<<<<<< HEAD
+=======
+fun Flow.addTextViews(titles: List<String>, constraintLayout: ConstraintLayout){
+    titles.forEach {
+        (LayoutInflater.from(context)
+            .inflate(R.layout.genres, constraintLayout, false) as TextView).apply {
+            text = it
+            id = View.generateViewId()
+            constraintLayout.addView(this)
+>>>>>>> Stashed changes
+>>>>>>> main
+=======
+>>>>>>> parent of e4ab3c6 (update work app)
             addView(this)
         }
     }

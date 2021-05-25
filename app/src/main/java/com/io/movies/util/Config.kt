@@ -5,7 +5,6 @@ import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
 import android.net.NetworkRequest
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 
@@ -18,7 +17,6 @@ object Config {
 
     var isConnect: Boolean? = null
 
-
     private var connectivityManager: ConnectivityManager? = null
 
     fun isOnline(context: Context? = null): LiveData<Boolean>?{
@@ -29,10 +27,10 @@ object Config {
 
     private val isOnline: LiveData<Boolean> by lazy {
         MutableLiveData<Boolean>().apply {
-            val builder = NetworkRequest.Builder()
-            builder.addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-
-            val networkRequest = builder.build()
+            val networkRequest = NetworkRequest.Builder().run {
+                addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+                build()
+            }
 
             connectivityManager!!.registerNetworkCallback(networkRequest,
                 object : ConnectivityManager.NetworkCallback (){
@@ -48,6 +46,10 @@ object Config {
                         postValue(false)
                     }
                 })
+            if (value == null) {
+                isConnect = false
+                postValue(false)
+            }
         }
     }
 }
