@@ -27,6 +27,9 @@ import com.io.movies.model.AboutMovie
 import com.io.movies.ui.activity.IBackFromAboutMovie
 import com.io.movies.ui.activity.MainActivity
 import com.io.movies.util.Config
+import io.reactivex.Observable
+import io.reactivex.disposables.Disposable
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class MovieFragment: Fragment() {
@@ -43,6 +46,8 @@ class MovieFragment: Fragment() {
 
     private lateinit var binding: FragmentMovieBinding
     private var backButtonFromToolbarFromAboutMovie: IBackFromAboutMovie? = null
+
+    private var loadDisposable: Disposable? = null
 
     private val viewModel by lazy {
         ViewModelProvider(this, factory).get(MovieViewModel::class.java)
@@ -126,6 +131,7 @@ class MovieFragment: Fragment() {
             }
         }
 
+<<<<<<< HEAD
         viewModel.load(requireArguments().getInt(ID))
     }
 
@@ -137,6 +143,9 @@ class MovieFragment: Fragment() {
     override fun onResume() {
         super.onResume()
         Log.e("FragmentMovie","OnResume")
+=======
+<<<<<<< Updated upstream
+>>>>>>> main
     }
 
     override fun onDetach() {
@@ -154,6 +163,7 @@ class MovieFragment: Fragment() {
                     }
                 }
 
+<<<<<<< HEAD
                 company.adapter = RecyclerAdapterCompany(it.companies)
 
                 genres.addTextViews(it.genres.map { genres -> genres.name })
@@ -161,6 +171,34 @@ class MovieFragment: Fragment() {
 
                 binding.favorite.apply {
                     isSelected = requireArguments().getBoolean(IS_FAVORITE)
+=======
+                mainContent.favorite.apply {
+                    isSelected = isFavorite
+=======
+        loadDisposable = Observable.timer(500, TimeUnit.MILLISECONDS).subscribe{
+            viewModel.load(requireArguments().getInt(ID))
+        }
+    }
+
+    private fun initAboutMovie(aboutMovie: AboutMovie) {
+        binding.apply {
+            movie = aboutMovie.also {
+                this@MovieFragment.viewModel.apply {
+                    (it.backdrop != null).let { isHaveBackImage ->
+                        isLoadBackImage.set(isHaveBackImage)
+                        backButtonFromToolbarFromAboutMovie?.backButtonClickable(!isHaveBackImage)
+                    }
+                }
+
+                company.adapter = RecyclerAdapterCompany(it.companies)
+
+                genres.addTextViews(it.genres.map { genres -> genres.name }, content)
+                countriesRecalculation.addTextViews(it.countries.map { country -> country.country }, content)
+
+                binding.favorite.apply {
+                    isSelected = requireArguments().getBoolean(IS_FAVORITE)
+>>>>>>> Stashed changes
+>>>>>>> main
 
                     setOnClickListener { _ ->
                         isSelected = !isSelected
@@ -176,15 +214,45 @@ class MovieFragment: Fragment() {
 
         viewModel.isLoadAboutMovie.set(false)
     }
+
+    override fun onDestroyView() {
+        loadDisposable?.dispose()
+        super.onDestroyView()
+    }
+
+
+
+    override fun onDetach() {
+        super.onDetach()
+        backButtonFromToolbarFromAboutMovie = null
+    }
 }
 
+<<<<<<< HEAD
 fun Flow.addTextViews(titles: List<String>){
+=======
+<<<<<<< Updated upstream
+fun Flow.addTextViews(titles: List<String>, content: ConstraintLayout){
+>>>>>>> main
     titles.forEach {
         (LayoutInflater.from(context)
             .inflate(R.layout.genres, parent as ConstraintLayout, false) as TextView).apply {
             text = it
             id = View.generateViewId()
+<<<<<<< HEAD
             (parent as ConstraintLayout).addView(this)
+=======
+            content.addView(this)
+=======
+fun Flow.addTextViews(titles: List<String>, constraintLayout: ConstraintLayout){
+    titles.forEach {
+        (LayoutInflater.from(context)
+            .inflate(R.layout.genres, constraintLayout, false) as TextView).apply {
+            text = it
+            id = View.generateViewId()
+            constraintLayout.addView(this)
+>>>>>>> Stashed changes
+>>>>>>> main
             addView(this)
         }
     }

@@ -110,6 +110,7 @@ class ListMoviesViewModel @Inject constructor(
             .setBoundaryCallback(movieRepository.boundaryCallback)
             .build()
 
+<<<<<<< HEAD
         Log.e("FavoriteMode","off")
     }
 
@@ -121,6 +122,19 @@ class ListMoviesViewModel @Inject constructor(
 
         if(observableConnect == null) {
             observableConnect = Observer {
+=======
+<<<<<<< Updated upstream
+        if (!isFavoriteMode && isConnect) {
+            movieRepository.updateQuery(query = query)
+            live.setBoundaryCallback(
+                movieRepository.callback()
+            )
+=======
+        if(observableConnect == null) {
+            observableConnect = Observer {
+                Log.e("Connect", "new connect $it")
+                if (it == null) return@Observer
+>>>>>>> main
                 if (isFirstStart) {
                     if (it) deleteBase()
                     else isNotConnect()
@@ -136,8 +150,13 @@ class ListMoviesViewModel @Inject constructor(
                         isNotConnect()
                     }
                 }
+<<<<<<< HEAD
                 Log.e("Connect", "new connect $it")
             }
+=======
+            }
+>>>>>>> Stashed changes
+>>>>>>> main
         }
 
         liveDataConnect.observeForever(observableConnect!!)
@@ -154,10 +173,26 @@ class ListMoviesViewModel @Inject constructor(
     fun deleteBase() {
         movieRepository.delete()
     }
+<<<<<<< HEAD
 
     override fun onCleared() {
         observableConnect?.let { Config.isOnline()?.removeObserver(it) }
         movieRepository.clear()
         super.onCleared()
     }
+=======
+<<<<<<< Updated upstream
+=======
+
+    fun clear(){
+        observableConnect?.let { Config.isOnline()?.removeObserver(it) }
+    }
+
+    override fun onCleared() {
+        clear()
+        movieRepository.clear()
+        super.onCleared()
+    }
+>>>>>>> Stashed changes
+>>>>>>> main
 }
