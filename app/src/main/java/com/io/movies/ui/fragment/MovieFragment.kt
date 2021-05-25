@@ -27,6 +27,9 @@ import com.io.movies.model.AboutMovie
 import com.io.movies.ui.activity.IBackFromAboutMovie
 import com.io.movies.ui.activity.MainActivity
 import com.io.movies.util.Config
+import io.reactivex.Observable
+import io.reactivex.disposables.Disposable
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class MovieFragment: Fragment() {
@@ -43,6 +46,8 @@ class MovieFragment: Fragment() {
 
     private lateinit var binding: FragmentMovieBinding
     private var backButtonFromToolbarFromAboutMovie: IBackFromAboutMovie? = null
+
+    private var loadDisposable: Disposable? = null
 
     private val viewModel by lazy {
         ViewModelProvider(this, factory).get(MovieViewModel::class.java)
@@ -126,54 +131,6 @@ class MovieFragment: Fragment() {
             }
         }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-        viewModel.load(requireArguments().getInt(ID))
-    }
-
-    override fun onStart() {
-        super.onStart()
-        Log.e("FragmentMovie","OnStart")
-    }
-
-    override fun onResume() {
-        super.onResume()
-        Log.e("FragmentMovie","OnResume")
-=======
-<<<<<<< Updated upstream
->>>>>>> main
-=======
->>>>>>> parent of e4ab3c6 (update work app)
-    }
-
-    override fun onDetach() {
-        super.onDetach()
-        backButtonFromToolbarFromAboutMovie = null
-    }
-
-    private fun initAboutMovie(aboutMovie: AboutMovie) {
-        binding.apply {
-            movie = aboutMovie.also {
-                this@MovieFragment.viewModel.apply {
-                    (it.backdrop != null).let { isHaveBackImage ->
-                        isLoadBackImage.set(isHaveBackImage)
-                        backButtonFromToolbarFromAboutMovie?.backButtonClickable(!isHaveBackImage)
-                    }
-                }
-
-<<<<<<< HEAD
-                company.adapter = RecyclerAdapterCompany(it.companies)
-
-                genres.addTextViews(it.genres.map { genres -> genres.name })
-                countriesRecalculation.addTextViews(it.countries.map { country -> country.country })
-
-                binding.favorite.apply {
-                    isSelected = requireArguments().getBoolean(IS_FAVORITE)
-=======
-                mainContent.favorite.apply {
-                    isSelected = isFavorite
-<<<<<<< HEAD
-=======
         loadDisposable = Observable.timer(500, TimeUnit.MILLISECONDS).subscribe{
             viewModel.load(requireArguments().getInt(ID))
         }
@@ -196,10 +153,6 @@ class MovieFragment: Fragment() {
 
                 binding.favorite.apply {
                     isSelected = requireArguments().getBoolean(IS_FAVORITE)
->>>>>>> Stashed changes
->>>>>>> main
-=======
->>>>>>> parent of e4ab3c6 (update work app)
 
                     setOnClickListener { _ ->
                         isSelected = !isSelected
@@ -215,28 +168,22 @@ class MovieFragment: Fragment() {
 
         viewModel.isLoadAboutMovie.set(false)
     }
+
+
+    override fun onDestroyView() {
+        binding.unbind()
+        loadDisposable?.dispose()
+        super.onDestroyView()
+    }
+
+
+
+    override fun onDetach() {
+        super.onDetach()
+        backButtonFromToolbarFromAboutMovie = null
+    }
 }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-fun Flow.addTextViews(titles: List<String>){
-=======
-<<<<<<< Updated upstream
-=======
->>>>>>> parent of e4ab3c6 (update work app)
-fun Flow.addTextViews(titles: List<String>, content: ConstraintLayout){
->>>>>>> main
-    titles.forEach {
-        (LayoutInflater.from(context)
-            .inflate(R.layout.genres, parent as ConstraintLayout, false) as TextView).apply {
-            text = it
-            id = View.generateViewId()
-<<<<<<< HEAD
-            (parent as ConstraintLayout).addView(this)
-=======
-            content.addView(this)
-<<<<<<< HEAD
-=======
 fun Flow.addTextViews(titles: List<String>, constraintLayout: ConstraintLayout){
     titles.forEach {
         (LayoutInflater.from(context)
@@ -244,10 +191,6 @@ fun Flow.addTextViews(titles: List<String>, constraintLayout: ConstraintLayout){
             text = it
             id = View.generateViewId()
             constraintLayout.addView(this)
->>>>>>> Stashed changes
->>>>>>> main
-=======
->>>>>>> parent of e4ab3c6 (update work app)
             addView(this)
         }
     }

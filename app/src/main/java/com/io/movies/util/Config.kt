@@ -14,7 +14,6 @@ object Config {
     const val apiKey = "f0c8cfc8c338e88d2157cc91dc4b893c"
     const val imdb = "https://www.imdb.com/title/"
 
-
     var isConnect: Boolean? = null
 
     private var connectivityManager: ConnectivityManager? = null

@@ -12,14 +12,27 @@
             type="com.io.movies.model.AboutMovie" />
     </data>
 
-
-    <androidx.constraintlayout.motion.widget.MotionLayout
-        android:id="@+id/motion_layout"
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:isVisibilityOrGone="@{viewModel.isLoadAboutMovie()}"
-        app:setDescriptionSharingFromUrl="@{viewModel.isLoadBackImage()}"
-        app:layoutDescription="@xml/collapsing_about_movie">
+        android:layout_height="match_parent">
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_gravity="center"
+            android:translationZ="2dp"
+            app:isVisibilityOrGone="@{viewModel.isLoadAboutMovie()}"
+            android:indeterminateTint="@color/purple_200"
+            />
+
+        <androidx.constraintlayout.motion.widget.MotionLayout
+            android:id="@+id/motion_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:isGoneOrVisibility="@{viewModel.isLoadAboutMovie()}"
+            app:setDescriptionSharingFromImage="@{viewModel.isLoadBackImage()}"
+            app:layoutDescription="@xml/collapsing_about_movie">
 
             <androidx.appcompat.widget.Toolbar
                 android:id="@+id/toolbar"
@@ -38,331 +51,331 @@
                 app:loadImage="@{movie.backdrop}"
                 tools:src="@drawable/back" />
 
-        <androidx.core.widget.NestedScrollView
-            android:id="@+id/scroll_view"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:scrollbars="none"
-            android:overScrollMode="never"
-            app:layout_constraintTop_toBottomOf="@id/back_image"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent">
-
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/content"
+            <androidx.core.widget.NestedScrollView
+                android:id="@+id/scroll_view"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@color/grey_des">
-
-                <androidx.constraintlayout.widget.Guideline
-                    android:id="@+id/start_guideline"
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:orientation="vertical"
-                    app:layout_constraintGuide_begin="16dp" />
-
-                <androidx.constraintlayout.widget.Guideline
-                    android:id="@+id/end_guideline"
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:orientation="vertical"
-                    app:layout_constraintGuide_end="16dp" />
-
-                <ImageView
-                    android:id="@+id/poster"
-                    android:layout_width="150dp"
-                    android:layout_height="200dp"
-                    android:layout_marginTop="10dp"
-                    android:contentDescription="@string/poster"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:loadImageOrNoPoster="@{movie.poster}"
-                    tools:src="@drawable/no_poster" />
-
-                <ImageButton
-                    android:id="@+id/favorite"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:layout_marginEnd="10dp"
-                    android:background="@drawable/background_favorite"
-                    android:contentDescription="@string/favorite"
-                    android:focusable="true"
-                    android:src="@drawable/images_favorite"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="@id/poster" />
-
-                <TextView
-                    android:id="@+id/title"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="10dp"
-                    android:layout_marginEnd="10dp"
-                    android:text="@{movie.title}"
-                    android:textColor="@color/white"
-                    android:textSize="20sp"
-                    app:layout_constrainedWidth="true"
-                    app:layout_constraintEnd_toStartOf="@id/favorite"
-                    app:layout_constraintHorizontal_bias="0.5"
-                    app:layout_constraintStart_toEndOf="@+id/poster"
-                    app:layout_constraintTop_toTopOf="@+id/poster"
-                    tools:text="Fight Club" />
-
-                <TextView
-                    android:id="@+id/status"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="15dp"
-                    android:textSize="20sp"
-                    app:layout_constraintEnd_toEndOf="@id/favorite"
-                    app:layout_constraintTop_toBottomOf="@id/title"
-                    app:textStatus="@{movie.status}"
-                    tools:text="Rumored"
-                    tools:textColor="@color/green_text" />
-
-                <androidx.appcompat.widget.AppCompatButton
-                    android:id="@+id/site"
-                    android:layout_width="70dp"
-                    android:layout_height="50dp"
-                    android:layout_marginTop="10dp"
-                    android:background="@drawable/background_site"
-                    android:padding="10dp"
-                    android:text="@string/site"
-                    android:textAllCaps="false"
-                    android:textColor="@color/white"
-                    android:textSize="12sp"
-                    app:isVisibilityOrGone='@{movie.homepage == null || movie.homepage.length() == 0}'
-                    app:layout_constraintEnd_toStartOf="@id/imdb"
-                    app:layout_constraintHorizontal_bias="0.9"
-                    app:layout_constraintStart_toEndOf="@+id/poster"
-                    app:layout_constraintTop_toBottomOf="@id/status" />
-
-                <androidx.appcompat.widget.AppCompatButton
-                    android:id="@+id/imdb"
-                    android:layout_width="60dp"
-                    android:layout_height="50dp"
-                    android:layout_marginTop="10dp"
-                    android:background="@drawable/background_imdb"
-                    android:padding="10dp"
-                    android:text="@string/imdb"
-                    android:textColor="@color/white"
-                    android:textSize="12sp"
-                    app:isVisibilityOrGone='@{movie.imdb == null || movie.imdb.length() == 0}'
-                    app:layout_constraintEnd_toEndOf="@id/favorite"
-                    app:layout_constraintTop_toBottomOf="@id/status" />
-
-                <ImageView
-                    android:id="@+id/eighteen_plus"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
-                    android:layout_marginTop="5dp"
-                    android:layout_marginEnd="5dp"
-                    android:src="@drawable/eighteen_plus"
-                    app:isVisibilityOrGone="@{!movie.adult}"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="@id/imdb"
-                    app:layout_constraintTop_toBottomOf="@id/imdb"
-                    app:layout_constraintVertical_bias="0"
-                    android:contentDescription="@string/eightteen_plus" />
+                android:layout_height="0dp"
+                android:scrollbars="none"
+                android:overScrollMode="never"
+                app:layout_constraintTop_toBottomOf="@id/back_image"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent">
 
 
-                <androidx.constraintlayout.widget.Barrier
-                    android:id="@+id/barrier_hat"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    app:barrierDirection="bottom"
-                    tools:visibility="gone"
-                    app:constraint_referenced_ids="poster, eighteen_plus" />
-
-                <TextView
-                    android:id="@+id/overview"
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/content"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="14dp"
-                    android:layout_marginTop="10dp"
-                    android:layout_marginEnd="14dp"
-                    android:text='@{movie.overview}'
-                    android:textColor="@color/white"
-                    app:barrierDirection="top"
-                    app:layout_constrainedWidth="true"
-                    app:layout_constraintEnd_toEndOf="@id/end_guideline"
-                    app:layout_constraintStart_toStartOf="@id/start_guideline"
-                    app:layout_constraintTop_toBottomOf="@+id/barrier_hat"
-                    tools:text="A ticking-time-bomb insomniac and a slippery soap salesman channel primal male aggression into a shocking new form of therapy. Their concept catches on, with underground fight clubs forming in every town, until an eccentric gets in the way and ignites an out-of-control spiral toward oblivion." />
+                    android:layout_height="match_parent"
+                    android:background="@color/grey_des">
 
-                <TextView
-                    android:id="@+id/date"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    app:layout_constraintTop_toBottomOf="@id/overview"
-                    app:layout_constraintEnd_toEndOf="@id/end_guideline"
-                    app:layout_constraintStart_toStartOf="@id/start_guideline"
-                    app:textDate="@{movie.releaseDate}"
-                    android:layout_marginTop="10dp"
-                    style="@style/InfoAboutMovie"
-                    tools:text="29 April 2021"/>
+                    <androidx.constraintlayout.widget.Guideline
+                        android:id="@+id/start_guideline"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:orientation="vertical"
+                        app:layout_constraintGuide_begin="16dp" />
 
-                <androidx.appcompat.widget.AppCompatRatingBar
-                    android:id="@+id/stars"
-                    style="?android:attr/ratingBarStyleIndicator"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="5dp"
-                    android:numStars="10"
-                    android:paddingTop="10dp"
-                    android:paddingBottom="10dp"
-                    android:rating="@{movie.voteAverage}"
-                    android:scaleX="0.8"
-                    android:scaleY="0.8"
-                    android:theme="@style/MyRatingBar"
-                    app:layout_constraintEnd_toEndOf="@id/end_guideline"
-                    app:layout_constraintStart_toStartOf="@id/start_guideline"
-                    app:layout_constraintTop_toBottomOf="@+id/genres"
-                    tools:rating="7.5" />
+                    <androidx.constraintlayout.widget.Guideline
+                        android:id="@+id/end_guideline"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:orientation="vertical"
+                        app:layout_constraintGuide_end="16dp" />
 
-                <androidx.constraintlayout.helper.widget.Flow
-                    android:id="@+id/genres"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    app:flow_horizontalBias="0"
-                    app:flow_horizontalGap="8dp"
-                    app:flow_horizontalStyle="packed"
-                    app:flow_verticalGap="8dp"
-                    app:flow_verticalStyle="spread"
-                    app:flow_wrapMode="chain"
-                    app:layout_constraintEnd_toEndOf="@id/end_guideline"
-                    app:layout_constraintStart_toStartOf="@id/start_guideline"
-                    app:layout_constraintTop_toBottomOf="@+id/date"
-                    tools:ignore="RtlSymmetry" />
+                    <ImageView
+                        android:id="@+id/poster"
+                        android:layout_width="150dp"
+                        android:layout_height="200dp"
+                        android:layout_marginTop="10dp"
+                        android:contentDescription="@string/poster"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:loadImageOrNoPoster="@{movie.poster}"
+                        tools:src="@drawable/no_poster" />
 
-                <TextView
-                    android:id="@+id/vote_average"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="7dp"
-                    android:maxLength="4"
-                    android:text='@{movie.voteAverage + ""}'
-                    android:textColor="@color/yellow"
-                    android:textSize="35sp"
-                    app:layout_constraintEnd_toEndOf="@+id/stars"
-                    app:layout_constraintStart_toStartOf="@+id/start_guideline"
-                    app:layout_constraintTop_toBottomOf="@id/stars"
-                    tools:text="7.7" />
+                    <ImageButton
+                        android:id="@+id/favorite"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:layout_marginEnd="10dp"
+                        android:background="@drawable/background_favorite"
+                        android:contentDescription="@string/favorite"
+                        android:focusable="true"
+                        android:src="@drawable/images_favorite"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="@id/poster" />
 
-                <TextView
-                    android:id="@+id/budget"
-                    style="@style/InfoAboutMovie"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/budget"
-                    app:layout_constraintEnd_toStartOf="@id/budget_amount"
-                    app:layout_constraintStart_toStartOf="@id/start_guideline"
-                    app:layout_constraintTop_toBottomOf="@id/vote_average" />
+                    <TextView
+                        android:id="@+id/title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="10dp"
+                        android:layout_marginEnd="10dp"
+                        android:text="@{movie.title}"
+                        android:textColor="@color/white"
+                        android:textSize="20sp"
+                        app:layout_constrainedWidth="true"
+                        app:layout_constraintEnd_toStartOf="@id/favorite"
+                        app:layout_constraintHorizontal_bias="0.5"
+                        app:layout_constraintStart_toEndOf="@+id/poster"
+                        app:layout_constraintTop_toTopOf="@+id/poster"
+                        tools:text="Fight Club" />
 
-                <TextView
-                    android:id="@+id/budget_amount"
-                    style="@style/InfoAboutMovie"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text='@{"$" + movie.budget}'
-                    app:layout_constraintEnd_toEndOf="@id/end_guideline"
-                    app:layout_constraintStart_toEndOf="@id/budget"
-                    app:layout_constraintTop_toTopOf="@+id/budget"
-                    tools:text="$3000000" />
+                    <TextView
+                        android:id="@+id/status"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="15dp"
+                        android:textSize="20sp"
+                        app:layout_constraintEnd_toEndOf="@id/favorite"
+                        app:layout_constraintTop_toBottomOf="@id/title"
+                        app:textStatus="@{movie.status}"
+                        tools:text="Rumored"
+                        tools:textColor="@color/green_text" />
 
-                <TextView
-                    android:id="@+id/countries"
-                    style="@style/InfoAboutMovie"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    app:layout_constraintHorizontal_bias="0"
-                    android:text='@{movie.countries.size() > 1? "Countries" : "Country"}'
-                    app:layout_constraintEnd_toStartOf="@+id/countries_recalculation"
-                    app:layout_constraintStart_toStartOf="@id/budget"
-                    app:layout_constraintTop_toBottomOf="@id/budget"
-                    tools:text="Country" />
+                    <androidx.appcompat.widget.AppCompatButton
+                        android:id="@+id/site"
+                        android:layout_width="70dp"
+                        android:layout_height="50dp"
+                        android:layout_marginTop="10dp"
+                        android:background="@drawable/background_site"
+                        android:padding="10dp"
+                        android:text="@string/site"
+                        android:textAllCaps="false"
+                        android:textColor="@color/white"
+                        android:textSize="12sp"
+                        app:isVisibilityOrGone='@{movie.homepage == null || movie.homepage.length() == 0}'
+                        app:layout_constraintEnd_toStartOf="@id/imdb"
+                        app:layout_constraintHorizontal_bias="0.9"
+                        app:layout_constraintStart_toEndOf="@+id/poster"
+                        app:layout_constraintTop_toBottomOf="@id/status" />
 
-                <androidx.constraintlayout.helper.widget.Flow
-                    android:id="@+id/countries_recalculation"
-                    style="@style/InfoAboutMovie"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    app:layout_constraintHorizontal_bias="0"
-                    app:flow_horizontalBias="0"
-                    app:flow_horizontalGap="8dp"
-                    app:flow_horizontalStyle="packed"
-                    app:flow_verticalGap="8dp"
-                    app:flow_verticalStyle="spread"
-                    app:flow_wrapMode="chain"
-                    android:layout_marginTop="3dp"
-                    app:layout_constrainedWidth="true"
-                    app:layout_constraintEnd_toEndOf="@id/end_guideline"
-                    app:layout_constraintStart_toStartOf="@+id/budget_amount"
-                    app:layout_constraintTop_toTopOf="@+id/countries" />
+                    <androidx.appcompat.widget.AppCompatButton
+                        android:id="@+id/imdb"
+                        android:layout_width="60dp"
+                        android:layout_height="50dp"
+                        android:layout_marginTop="10dp"
+                        android:background="@drawable/background_imdb"
+                        android:padding="10dp"
+                        android:text="@string/imdb"
+                        android:textColor="@color/white"
+                        android:textSize="12sp"
+                        app:isVisibilityOrGone='@{movie.imdb == null || movie.imdb.length() == 0}'
+                        app:layout_constraintEnd_toEndOf="@id/favorite"
+                        app:layout_constraintTop_toBottomOf="@id/status" />
 
-                <androidx.constraintlayout.widget.Barrier
-                    android:id="@+id/barrier_country"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    app:barrierDirection="bottom"
-                    tools:visibility="gone"
-                    app:constraint_referenced_ids="countries_recalculation, countries" />
-
-                <TextView
-                    android:id="@+id/actors_text"
-                    style="@style/InfoAboutMovie"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="5dp"
-                    android:layout_marginTop="8dp"
-                    android:text="@string/actors"
-                    app:layout_constraintStart_toStartOf="@id/start_guideline"
-                    app:layout_constraintTop_toBottomOf="@id/barrier_country" />
+                    <ImageView
+                        android:id="@+id/eighteen_plus"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:layout_marginTop="5dp"
+                        android:layout_marginEnd="5dp"
+                        android:src="@drawable/eighteen_plus"
+                        app:isGoneOrVisibility="@{!movie.adult}"
+                        app:layout_constraintEnd_toEndOf="@id/imdb"
+                        app:layout_constraintTop_toBottomOf="@id/imdb"
+                        app:layout_constraintVertical_bias="0"
+                        android:contentDescription="@string/eightteen_plus" />
 
 
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/actors"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                    app:layout_constraintEnd_toEndOf="@id/end_guideline"
-                    app:layout_constraintStart_toStartOf="@id/start_guideline"
-                    app:layout_constraintTop_toBottomOf="@id/actors_text"
-                    tools:listitem="@layout/item_credit" />
+                    <androidx.constraintlayout.widget.Barrier
+                        android:id="@+id/barrier_hat"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:barrierDirection="bottom"
+                        app:constraint_referenced_ids="poster, eighteen_plus" />
 
-                <TextView
-                    android:id="@+id/company_text"
-                    style="@style/InfoAboutMovie"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="5dp"
-                    android:layout_marginTop="5dp"
-                    android:text="@string/company"
-                    app:layout_constraintStart_toStartOf="@id/start_guideline"
-                    app:layout_constraintTop_toBottomOf="@id/actors" />
+                    <TextView
+                        android:id="@+id/overview"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="14dp"
+                        android:layout_marginTop="10dp"
+                        android:layout_marginEnd="14dp"
+                        android:text='@{movie.overview}'
+                        android:textColor="@color/white"
+                        app:barrierDirection="top"
+                        app:layout_constrainedWidth="true"
+                        app:layout_constraintEnd_toEndOf="@id/end_guideline"
+                        app:layout_constraintStart_toStartOf="@id/start_guideline"
+                        app:layout_constraintTop_toBottomOf="@+id/barrier_hat"
+                        tools:text="A ticking-time-bomb insomniac and a slippery soap salesman channel primal male aggression into a shocking new form of therapy. Their concept catches on, with underground fight clubs forming in every town, until an eccentric gets in the way and ignites an out-of-control spiral toward oblivion." />
 
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/company"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="8dp"
-                    android:orientation="horizontal"
-                    app:reverseLayout="true"
-                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintHorizontal_bias="1"
-                    app:layout_constraintEnd_toEndOf="@id/end_guideline"
-                    app:layout_constraintStart_toStartOf="@id/start_guideline"
-                    app:layout_constraintTop_toBottomOf="@id/company_text"
-                    tools:itemCount="3"
-                    tools:listitem="@layout/item_company" />
+                    <TextView
+                        android:id="@+id/date"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:layout_constraintTop_toBottomOf="@id/overview"
+                        app:layout_constraintEnd_toEndOf="@id/end_guideline"
+                        app:layout_constraintStart_toStartOf="@id/start_guideline"
+                        app:textDate="@{movie.releaseDate}"
+                        android:layout_marginTop="10dp"
+                        style="@style/InfoAboutMovie"
+                        tools:text="29 April 2021"/>
 
-            </androidx.constraintlayout.widget.ConstraintLayout>
+                    <androidx.appcompat.widget.AppCompatRatingBar
+                        android:id="@+id/stars"
+                        style="?android:attr/ratingBarStyleIndicator"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="5dp"
+                        android:numStars="10"
+                        android:paddingTop="10dp"
+                        android:paddingBottom="10dp"
+                        android:rating="@{movie.voteAverage}"
+                        android:scaleX="0.8"
+                        android:scaleY="0.8"
+                        android:theme="@style/MyRatingBar"
+                        app:layout_constraintEnd_toEndOf="@id/end_guideline"
+                        app:layout_constraintStart_toStartOf="@id/start_guideline"
+                        app:layout_constraintTop_toBottomOf="@+id/genres"
+                        tools:rating="7.5" />
 
-        </androidx.core.widget.NestedScrollView>
-</androidx.constraintlayout.motion.widget.MotionLayout>
+                    <androidx.constraintlayout.helper.widget.Flow
+                        android:id="@+id/genres"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        app:flow_horizontalBias="0"
+                        app:flow_horizontalGap="8dp"
+                        app:flow_horizontalStyle="packed"
+                        app:flow_verticalGap="8dp"
+                        app:flow_verticalStyle="spread"
+                        app:flow_wrapMode="chain"
+                        app:layout_constraintEnd_toEndOf="@id/end_guideline"
+                        app:layout_constraintStart_toStartOf="@id/start_guideline"
+                        app:layout_constraintTop_toBottomOf="@+id/date"
+                        tools:ignore="RtlSymmetry" />
+
+                    <TextView
+                        android:id="@+id/vote_average"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="7dp"
+                        android:maxLength="4"
+                        android:text='@{movie.voteAverage + ""}'
+                        android:textColor="@color/yellow"
+                        android:textSize="35sp"
+                        app:layout_constraintEnd_toEndOf="@+id/stars"
+                        app:layout_constraintStart_toStartOf="@+id/start_guideline"
+                        app:layout_constraintTop_toBottomOf="@id/stars"
+                        tools:text="7.7" />
+
+                    <TextView
+                        android:id="@+id/budget"
+                        style="@style/InfoAboutMovie"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/budget"
+                        app:layout_constraintEnd_toStartOf="@id/budget_amount"
+                        app:layout_constraintStart_toStartOf="@id/start_guideline"
+                        app:layout_constraintTop_toBottomOf="@id/vote_average" />
+
+                    <TextView
+                        android:id="@+id/budget_amount"
+                        style="@style/InfoAboutMovie"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text='@{"$" + movie.budget}'
+                        app:layout_constraintEnd_toEndOf="@id/end_guideline"
+                        app:layout_constraintStart_toEndOf="@id/budget"
+                        app:layout_constraintTop_toTopOf="@+id/budget"
+                        tools:text="$3000000" />
+
+                    <TextView
+                        android:id="@+id/countries"
+                        style="@style/InfoAboutMovie"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        app:layout_constraintHorizontal_bias="0"
+                        android:text='@{movie.countries.size() > 1? "Countries" : "Country"}'
+                        app:layout_constraintEnd_toStartOf="@+id/countries_recalculation"
+                        app:layout_constraintStart_toStartOf="@id/budget"
+                        app:layout_constraintTop_toBottomOf="@id/budget"
+                        tools:text="Country" />
+
+                    <androidx.constraintlayout.helper.widget.Flow
+                        android:id="@+id/countries_recalculation"
+                        style="@style/InfoAboutMovie"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:layout_constraintHorizontal_bias="0"
+                        app:flow_horizontalBias="0"
+                        app:flow_horizontalGap="8dp"
+                        app:flow_horizontalStyle="packed"
+                        app:flow_verticalGap="8dp"
+                        app:flow_verticalStyle="spread"
+                        app:flow_wrapMode="chain"
+                        android:layout_marginTop="3dp"
+                        app:layout_constrainedWidth="true"
+                        app:layout_constraintEnd_toEndOf="@id/end_guideline"
+                        app:layout_constraintStart_toStartOf="@+id/budget_amount"
+                        app:layout_constraintTop_toTopOf="@+id/countries" />
+
+                    <androidx.constraintlayout.widget.Barrier
+                        android:id="@+id/barrier_country"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:barrierDirection="bottom"
+                        app:constraint_referenced_ids="countries_recalculation, countries" />
+
+                    <TextView
+                        android:id="@+id/actors_text"
+                        style="@style/InfoAboutMovie"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="5dp"
+                        android:layout_marginTop="8dp"
+                        android:text="@string/actors"
+                        app:layout_constraintStart_toStartOf="@id/start_guideline"
+                        app:layout_constraintTop_toBottomOf="@id/barrier_country" />
+
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/actors"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                        app:layout_constraintEnd_toEndOf="@id/end_guideline"
+                        app:layout_constraintStart_toStartOf="@id/start_guideline"
+                        app:layout_constraintTop_toBottomOf="@id/actors_text"
+                        tools:listitem="@layout/item_credit" />
+
+                    <TextView
+                        android:id="@+id/company_text"
+                        style="@style/InfoAboutMovie"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="5dp"
+                        android:layout_marginTop="5dp"
+                        android:text="@string/company"
+                        app:layout_constraintStart_toStartOf="@id/start_guideline"
+                        app:layout_constraintTop_toBottomOf="@id/actors" />
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/company"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        android:orientation="horizontal"
+                        app:reverseLayout="true"
+                        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintHorizontal_bias="1"
+                        app:layout_constraintEnd_toEndOf="@id/end_guideline"
+                        app:layout_constraintStart_toStartOf="@id/start_guideline"
+                        app:layout_constraintTop_toBottomOf="@id/company_text"
+                        tools:itemCount="3"
+                        tools:listitem="@layout/item_company" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+            </androidx.core.widget.NestedScrollView>
+
+        </androidx.constraintlayout.motion.widget.MotionLayout>
+
+    </FrameLayout>
 </layout>

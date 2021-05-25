@@ -70,45 +70,6 @@ class ListMoviesFragment : Fragment() {
         swipeRefreshLoad()
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.menu_list, menu)
-
-        menuCommand.searchViewListener(menu.findItem(R.id.action_search).actionView as SearchView, viewModel.getQuery()){
-            viewModel.apply {
-                updateMovies()
-                postQuery(it)
-            }
-        }
-
-        menuCommand.favoriteButtonInit(
-            favoriteButton = menu.findItem(R.id.action_favorite),
-            favoriteButtonSelected = menu.findItem(R.id.action_favorite_selected),
-            isFavorite = viewModel.getIsFavorite()
-        )
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        menuCommand.onClickFavoriteButton(item.itemId){
-            viewModel.apply {
-                updateMovies()
-                postFavorite(it)
-            }
-        }
-        return true
-    }
-
-    override fun onStop() {
-        super.onStop()
-        viewModel.updateMovies()
-    }
-
-    override fun onDestroyView() {
-        viewModel.isLoadAboutMovie.set(false)
-        binding.unbind()
-        menuCommand.clear()
-        recyclerViewCommand.removeRecyclerViewAdapter()
-        super.onDestroyView()
-    }
 
     private fun swipeRefreshLoad() {
         binding.swipeRefresh.apply {
@@ -130,77 +91,6 @@ class ListMoviesFragment : Fragment() {
         }
     }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-    private fun connectLiveData(){
-        val isNotConnect: () -> Unit = {
-            Snackbar.make(binding.root, "No network", Snackbar.LENGTH_SHORT).show()
-        }
-
-        val updateLoad: () -> Unit = {
-            recyclerViewCommand.invalidate()
-=======
-<<<<<<< Updated upstream
-=======
->>>>>>> parent of e4ab3c6 (update work app)
-    override fun onStop() {
-        super.onStop()
-        updateFavoriteList()
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.menu_list, menu)
-
-        menuCommand.searchViewListener(menu.findItem(R.id.action_search).actionView as SearchView, viewModel.query){
-            updateFavoriteList()
-            viewModel.query = it
-            newRecycler(isRestart = true)
-<<<<<<< HEAD
-=======
-        if(Config.isConnect != null){
-            firstStart()
->>>>>>> Stashed changes
->>>>>>> main
-=======
->>>>>>> parent of e4ab3c6 (update work app)
-        }
-
-        val firstStart: () -> Unit = {
-            recyclerViewLiveData()
-        }
-
-        if(Config.isConnect == true){
-            firstStart()
-        }
-
-<<<<<<< HEAD
-        viewModel.isConnect(
-            liveDataConnect = Config.isOnline(requireContext().applicationContext)!!,
-            isNotConnect = isNotConnect,
-            updateLoad = updateLoad,
-            firstStart = firstStart)
-    }
-
-<<<<<<< HEAD
-
-    private fun recyclerViewLiveData(){
-        viewModel.mediatorUpdateRecyclerView.observe(viewLifecycleOwner){
-            if (it == null) return@observe
-            newRecycler()
-=======
-<<<<<<< Updated upstream
-=======
->>>>>>> parent of e4ab3c6 (update work app)
-    private fun newRecycler(isRestart: Boolean) {
-        binding.moviesRecycler.adapter = recyclerViewCommand.newRecycler(isRestart = isRestart)
-    }
-
-    private fun updateFavoriteList(){
-        favoriteCommand.updateListFavorite().let {
-            viewModel.updateMovies(it)
-            it.clear()
-<<<<<<< HEAD
-=======
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.menu_list, menu)
 
@@ -228,6 +118,39 @@ class ListMoviesFragment : Fragment() {
         return true
     }
 
+    private fun connectLiveData(){
+        val isNotConnect: () -> Unit = {
+              Snackbar.make(binding.root, "No network", Snackbar.LENGTH_SHORT).show()
+        }
+
+        val updateLoad: () -> Unit = {
+            recyclerViewCommand.invalidate()
+        }
+
+        val firstStart: () -> Unit = {
+            recyclerViewLiveData()
+        }
+
+        if(Config.isConnect != null){
+            firstStart()
+        }
+
+
+        viewModel.isConnect(
+            liveDataConnect = Config.isOnline(requireContext().applicationContext)!!,
+            isNotConnect = isNotConnect,
+            updateLoad = updateLoad,
+            firstStart = firstStart)
+    }
+
+
+    private fun recyclerViewLiveData() {
+        viewModel.mediatorUpdateRecyclerView.observe(viewLifecycleOwner) {
+            if (it == null) return@observe
+            newRecycler()
+        }
+    }
+
     override fun onStop() {
         super.onStop()
         viewModel.updateMovies()
@@ -240,20 +163,6 @@ class ListMoviesFragment : Fragment() {
         viewModel.clear()
         recyclerViewCommand.removeRecyclerViewAdapter()
         super.onDestroyView()
-    }
-
-    private fun newRecycler() {
-        viewModel.apply {
-            if (newLists?.hasObservers() == true) {
-                Log.e("UpdateRecycler","newList set null")
-                newLists!!.removeObservers(viewLifecycleOwner)
-                newLists = null
-            }
->>>>>>> Stashed changes
->>>>>>> main
-=======
->>>>>>> parent of e4ab3c6 (update work app)
-        }
     }
 
     private fun newRecycler() {
