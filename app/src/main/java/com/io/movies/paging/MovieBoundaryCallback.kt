@@ -34,6 +34,10 @@ class MovieBoundaryCallback constructor(private val load: (Int, String) -> Unit)
         count = 1
     }
 
+    fun newConnectNetwork(){
+        count--
+    }
+
     fun refresh(){
         resetCounter()
     }

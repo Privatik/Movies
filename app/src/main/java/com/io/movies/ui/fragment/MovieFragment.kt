@@ -23,9 +23,8 @@ import com.io.movies.adapter.RecyclerAdapterCompany
 import com.io.movies.adapter.RecyclerAdapterCredit
 import com.io.movies.app.App
 import com.io.movies.databinding.FragmentMovieBinding
-import com.io.movies.delegate.argument
+import com.io.movies.model.AboutMovie
 import com.io.movies.ui.activity.IBackFromAboutMovie
-import com.io.movies.ui.activity.IMovie
 import com.io.movies.ui.activity.MainActivity
 import com.io.movies.util.Config
 import io.reactivex.Observable
@@ -39,16 +38,14 @@ class MovieFragment: Fragment() {
         private const val ID = "id"
         private const val IS_FAVORITE = "isFavorite"
 
-        fun newInstanceBundle(id: Int, isFavorite: Boolean): Bundle = Bundle().apply {
+        fun setAndGetBundle(id: Int, isFavorite: Boolean): Bundle = Bundle().apply {
                     putInt(ID, id)
                     putBoolean(IS_FAVORITE, isFavorite)
                 }
     }
 
     private lateinit var binding: FragmentMovieBinding
-
-    private lateinit var aboutMovie: IMovie
-    private lateinit var backFromAboutMovie: IBackFromAboutMovie
+    private var backButtonFromToolbarFromAboutMovie: IBackFromAboutMovie? = null
 
     private var loadDisposable: Disposable? = null
 
@@ -62,8 +59,7 @@ class MovieFragment: Fragment() {
     override fun onAttach(context: Context) {
         super.onAttach(context)
 
-        aboutMovie = context as IMovie
-        backFromAboutMovie = context as IBackFromAboutMovie
+        backButtonFromToolbarFromAboutMovie = context as IBackFromAboutMovie
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -87,8 +83,6 @@ class MovieFragment: Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        Log.e("TAG","isNotLoad -> ${viewModel.isNotLoad.get()}")
-
         (activity as MainActivity).apply {
             setSupportActionBar(binding.toolbar)
             supportActionBar?.let {
@@ -104,11 +98,11 @@ class MovieFragment: Fragment() {
                 when (currentId){
                     R.id.collapsed -> {
                         Log.e("Motion","anim collapsed")
-                        backFromAboutMovie.backButtonClickable(isClickable = true)
+                        backButtonFromToolbarFromAboutMovie?.backButtonClickable(isClickable = true)
                     }
                     R.id.expanded -> {
                         Log.e("Motion","anim expanded")
-                        backFromAboutMovie.backButtonClickable(isClickable = false)
+                        backButtonFromToolbarFromAboutMovie?.backButtonClickable(isClickable = false)
                     }
                     else -> {
                         Log.e("Motion","anim else")
@@ -117,44 +111,67 @@ class MovieFragment: Fragment() {
             }
         })
 
-        requireArguments().apply {
-            viewModel.load(getInt(ID))
-            liveDataListener(getBoolean(IS_FAVORITE))
+        viewModel.loadAboutMovie.observe(viewLifecycleOwner){
+            initAboutMovie(it)
         }
 
-        binding.mainContent.imdb.setOnClickListener {
-            try { startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("${Config.imdb}${binding.movie?.imdb}"))) }
-            catch (e: ActivityNotFoundException){ Log.e("Error","In MovieFragment in time click site - ${e.message}") }
+        viewModel.updateCredit.observe(viewLifecycleOwner) {
+            binding.actors.adapter = RecyclerAdapterCredit(it.cast)
         }
 
-        binding.mainContent.site.setOnClickListener {
-            try { startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(binding.movie?.homepage))) }
-            catch (e: ActivityNotFoundException){ Log.e("Error","In MovieFragment in time click imdb - ${e.message}") }
+        binding.apply {
+            imdb.setOnClickListener {
+                try { startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("${Config.imdb}${binding.movie?.imdb}"))) }
+                catch (e: ActivityNotFoundException){ Log.e("Error","In MovieFragment in time click site - ${e.message}") }
+            }
+
+            site.setOnClickListener {
+                try { startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(binding.movie?.homepage))) }
+                catch (e: ActivityNotFoundException){ Log.e("Error","In MovieFragment in time click imdb - ${e.message}") }
+            }
         }
 
-<<<<<<< Updated upstream
+<<<<<<< HEAD
+        viewModel.load(requireArguments().getInt(ID))
     }
 
-    private fun liveDataListener(isFavorite: Boolean) {
-        viewModel.isNotLoad.set(true)
+    override fun onStart() {
+        super.onStart()
+        Log.e("FragmentMovie","OnStart")
+    }
 
-        viewModel.updateMovie.observe(viewLifecycleOwner) {
-            binding.apply {
-                this@MovieFragment.viewModel.isNotLoad.set(false)
-                this@MovieFragment.viewModel.isLoadBackImage.set(it.backdrop != null)
-                if (it.backdrop != null) backFromAboutMovie.backButtonClickable(isClickable = false)
-                movie = it
-                aboutMovie.closeDialogLoadAboutMovie()
-                mainContent.apply {
-                    company.adapter = RecyclerAdapterCompany(it.companies)
+    override fun onResume() {
+        super.onResume()
+        Log.e("FragmentMovie","OnResume")
+=======
+<<<<<<< Updated upstream
+>>>>>>> main
+    }
 
-                    genres.addTextViews(it.genres.map { genres -> genres.name }, content)
-                    countriesRecalculation.addTextViews(
-                        it.countries.map { country -> country.country },
-                        content
-                    )
+    override fun onDetach() {
+        super.onDetach()
+        backButtonFromToolbarFromAboutMovie = null
+    }
+
+    private fun initAboutMovie(aboutMovie: AboutMovie) {
+        binding.apply {
+            movie = aboutMovie.also {
+                this@MovieFragment.viewModel.apply {
+                    (it.backdrop != null).let { isHaveBackImage ->
+                        isLoadBackImage.set(isHaveBackImage)
+                        backButtonFromToolbarFromAboutMovie?.backButtonClickable(!isHaveBackImage)
+                    }
                 }
 
+<<<<<<< HEAD
+                company.adapter = RecyclerAdapterCompany(it.companies)
+
+                genres.addTextViews(it.genres.map { genres -> genres.name })
+                countriesRecalculation.addTextViews(it.countries.map { country -> country.country })
+
+                binding.favorite.apply {
+                    isSelected = requireArguments().getBoolean(IS_FAVORITE)
+=======
                 mainContent.favorite.apply {
                     isSelected = isFavorite
 =======
@@ -181,8 +198,9 @@ class MovieFragment: Fragment() {
                 binding.favorite.apply {
                     isSelected = requireArguments().getBoolean(IS_FAVORITE)
 >>>>>>> Stashed changes
+>>>>>>> main
 
-                    setOnClickListener { view ->
+                    setOnClickListener { _ ->
                         isSelected = !isSelected
 
                         this@MovieFragment.viewModel.updateMovie(
@@ -192,12 +210,9 @@ class MovieFragment: Fragment() {
                     }
                 }
             }
-
-            viewModel.updateCredit.observe(viewLifecycleOwner) {
-                binding.mainContent.actors.adapter = RecyclerAdapterCredit(it.cast)
-            }
-
         }
+
+        viewModel.isLoadAboutMovie.set(false)
     }
 
     override fun onDestroyView() {
@@ -213,13 +228,20 @@ class MovieFragment: Fragment() {
     }
 }
 
+<<<<<<< HEAD
+fun Flow.addTextViews(titles: List<String>){
+=======
 <<<<<<< Updated upstream
 fun Flow.addTextViews(titles: List<String>, content: ConstraintLayout){
+>>>>>>> main
     titles.forEach {
         (LayoutInflater.from(context)
-            .inflate(R.layout.genres, content, false) as TextView).apply {
+            .inflate(R.layout.genres, parent as ConstraintLayout, false) as TextView).apply {
             text = it
             id = View.generateViewId()
+<<<<<<< HEAD
+            (parent as ConstraintLayout).addView(this)
+=======
             content.addView(this)
 =======
 fun Flow.addTextViews(titles: List<String>, constraintLayout: ConstraintLayout){
@@ -230,6 +252,7 @@ fun Flow.addTextViews(titles: List<String>, constraintLayout: ConstraintLayout){
             id = View.generateViewId()
             constraintLayout.addView(this)
 >>>>>>> Stashed changes
+>>>>>>> main
             addView(this)
         }
     }

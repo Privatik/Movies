@@ -1,5 +1,6 @@
 package com.io.movies.model
 
+import android.os.Parcelable
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
@@ -7,6 +8,7 @@ import androidx.room.TypeConverters
 import com.google.gson.annotations.SerializedName
 import com.io.movies.repository.database.DateTypeConverter
 import com.io.movies.repository.database.MovieAboutTypeConverter
+import kotlinx.parcelize.Parcelize
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -65,12 +67,14 @@ data class Genres(
     val name: String,
 )
 
+
 data class Company(
     @SerializedName("logo_path")
     val logo: String?,
     @SerializedName("name")
     val name: String
 )
+
 
 data class Country(
     @SerializedName("iso_3166_1")

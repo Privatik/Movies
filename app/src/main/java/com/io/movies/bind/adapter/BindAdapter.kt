@@ -39,6 +39,8 @@ fun isGoneOrVisibility(view: View, isNotVisibility: Boolean) {
     view.visibility = if (isNotVisibility) View.GONE else View.VISIBLE
 }
 
+<<<<<<< HEAD
+=======
 <<<<<<< Updated upstream
 @BindingAdapter("app:isLookIt")
 fun isLookIt(view: View, isNotVisibility: Boolean) {
@@ -51,3 +53,4 @@ fun isVisibilityOrGone(view: View, isVisibility: Boolean) {
 >>>>>>> Stashed changes
 }
 
+>>>>>>> main

@@ -2,8 +2,8 @@ package com.io.movies.viewmodelfactory
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.io.movies.ui.fragment.MovieViewModel
 import com.io.movies.ui.fragment.ListMoviesViewModel
+import com.io.movies.ui.fragment.MovieViewModel
 import dagger.Binds
 import dagger.MapKey
 import dagger.Module

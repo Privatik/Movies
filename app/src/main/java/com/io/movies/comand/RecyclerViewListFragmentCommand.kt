@@ -1,52 +1,62 @@
 package com.io.movies.comand
 
 import android.util.Log
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.LiveData
-import androidx.paging.PagedList
+import androidx.databinding.ObservableBoolean
+import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.commit
+import androidx.fragment.app.replace
+import androidx.recyclerview.widget.RecyclerView
+import com.io.movies.R
 import com.io.movies.adapter.PagedAdapterMovie
 import com.io.movies.model.Movie
+import com.io.movies.ui.fragment.MovieFragment
 
 class RecyclerViewListFragmentCommand(
     private val update: (Movie) -> Unit,
-    private val showMovie: (Movie) -> Unit,
-    private val liveData: () -> LiveData<PagedList<Movie>>,
-    private val setNullLiveData:() -> Unit) {
+    private val fragmentManager: FragmentManager,
+    private val isLoad: ObservableBoolean,
+) {
 
-    lateinit var lifeCycleOwner: LifecycleOwner
-    private var adapterMovie: PagedAdapterMovie? = null
+    var adapterMovie: PagedAdapterMovie? = null
 
-    private fun newRecyclerViewAdapter(): PagedAdapterMovie =
-        if (adapterMovie == null) {
-            PagedAdapterMovie(update = update, showMovie = showMovie)
-                .also {
-                    adapterMovie = it
-                }
+    private val showMovie: (Movie) -> Unit = {
+        isLoad.set(true)
+
+        fragmentManager.commit {
+            setReorderingAllowed(true)
+            setCustomAnimations(
+                R.anim.slide_in,
+                R.anim.fade_out,
+                R.anim.fade_in,
+                R.anim.slide_out
+            )
+
+            replace<MovieFragment>(
+                R.id.fragment_container_view,
+                args = MovieFragment.setAndGetBundle(it.id, it.isFavorite)
+            )
+            addToBackStack(null)
         }
-        else adapterMovie!!
+    }
 
-    private fun removeRecyclerViewAdapter(){
-        liveData().removeObservers(lifeCycleOwner)
-        adapterMovie?.currentList?.dataSource?.invalidate()
+    fun removeRecyclerViewAdapter(){
         adapterMovie = null
     }
 
-
-    fun newRecycler(isRestart: Boolean): PagedAdapterMovie{
-        if (isRestart){
-            Log.e("RecyclerView","set null RecyclerView")
-            removeRecyclerViewAdapter()
-            setNullLiveData()
-        }
-
-        Log.e("RecyclerView","Restart RecyclerView $adapterMovie")
-        adapterMovie = newRecyclerViewAdapter()
-
-        liveData().observe(lifeCycleOwner) {
-            adapterMovie?.submitList(it)
-        }
-
-        return adapterMovie!!
+    fun invalidate(){
+        adapterMovie?.currentList?.dataSource?.invalidate()
     }
 
+
+    fun newRecyclerViewAdapter(): PagedAdapterMovie{
+        if (adapterMovie != null) {
+            Log.e("RecyclerView", "set null RecyclerView")
+            removeRecyclerViewAdapter()
+        }
+
+        return PagedAdapterMovie(update = update, showMovie = showMovie).also {
+            adapterMovie = it
+            adapterMovie!!.stateRestorationPolicy = RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
+        }
+    }
 }

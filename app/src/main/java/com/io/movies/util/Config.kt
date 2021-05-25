@@ -2,9 +2,12 @@ package com.io.movies.util
 
 import android.content.Context
 import android.net.ConnectivityManager
+import android.net.Network
 import android.net.NetworkCapabilities
-import android.os.Build
-import androidx.core.content.ContextCompat.getSystemService
+import android.net.NetworkRequest
+import androidx.core.content.ContextCompat
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 
 
 object Config {
@@ -13,6 +16,8 @@ object Config {
     const val imdb = "https://www.imdb.com/title/"
 
 
+<<<<<<< HEAD
+=======
 <<<<<<< Updated upstream
     fun isOnline(context: Context): Boolean {
         val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
@@ -32,6 +37,7 @@ object Config {
             val nwInfo = connectivityManager.activeNetworkInfo ?: return false
             return nwInfo.isConnected
 =======
+>>>>>>> main
     var isConnect: Boolean? = null
 
 
@@ -45,11 +51,18 @@ object Config {
 
     private val isOnline: LiveData<Boolean> by lazy {
         MutableLiveData<Boolean>().apply {
+<<<<<<< HEAD
+            val builder = NetworkRequest.Builder()
+            builder.addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+
+            val networkRequest = builder.build()
+=======
 
             val networkRequest = NetworkRequest.Builder().run {
                 addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
                 build()
             }
+>>>>>>> main
 
             connectivityManager!!.registerNetworkCallback(networkRequest,
                 object : ConnectivityManager.NetworkCallback (){
@@ -65,11 +78,14 @@ object Config {
                         postValue(false)
                     }
                 })
+<<<<<<< HEAD
+=======
             if (value == null) {
                 isConnect = false
                 postValue(false)
             }
 >>>>>>> Stashed changes
+>>>>>>> main
         }
     }
 }
