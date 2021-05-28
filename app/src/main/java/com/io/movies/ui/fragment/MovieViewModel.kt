@@ -49,8 +49,12 @@ class MovieViewModel @Inject constructor(
         repository.updateMovieFavorite(aboutMovie = aboutMovie, isFavorite = isFavorite)
     }
 
-    override fun onCleared() {
+    fun clear(){
         repository.clear()
+    }
+
+    override fun onCleared() {
+        clear()
         super.onCleared()
     }
 }

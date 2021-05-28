@@ -21,7 +21,7 @@ interface Movie{
     var isFavorite:Boolean
 }
 
-@Entity(indices  = [Index(value = ["id"], unique = true)])
+@Entity(tableName = "movie_info", indices  = [Index(value = ["id"], unique = true)])
 data class MovieInfo(
     @PrimaryKey(autoGenerate = true)
     override val order: Int,
@@ -63,7 +63,7 @@ data class Favorite(
 
 fun Movie.convertToFavorite(): Favorite =
     Favorite(
-        order,
+        0,
         id,
         title,
         poster,

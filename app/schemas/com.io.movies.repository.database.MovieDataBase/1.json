@@ -2,10 +2,10 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "fc3ab8ccdc9ea4718135d49b994b762b",
+    "identityHash": "a7d8041b68ca3f350d421b4112465c1b",
     "entities": [
       {
-        "tableName": "MovieInfo",
+        "tableName": "movie_info",
         "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`order` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `id` INTEGER NOT NULL, `title` TEXT NOT NULL, `poster` TEXT, `vote_average` REAL NOT NULL, `release_date` TEXT, `isFavorite` INTEGER NOT NULL)",
         "fields": [
           {
@@ -59,12 +59,12 @@
         },
         "indices": [
           {
-            "name": "index_MovieInfo_id",
+            "name": "index_movie_info_id",
             "unique": true,
             "columnNames": [
               "id"
             ],
-            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_MovieInfo_id` ON `${TABLE_NAME}` (`id`)"
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_movie_info_id` ON `${TABLE_NAME}` (`id`)"
           }
         ],
         "foreignKeys": []
@@ -268,7 +268,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'fc3ab8ccdc9ea4718135d49b994b762b')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'a7d8041b68ca3f350d421b4112465c1b')"
     ]
   }
 }

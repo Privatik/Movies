@@ -5,10 +5,9 @@ import androidx.paging.PagedList
 import com.io.movies.model.Movie
 import com.io.movies.model.MovieInfo
 
-class MovieBoundaryCallback constructor(private val load: (Int, String) -> Unit): PagedList.BoundaryCallback<Movie>(){
+class MovieBoundaryCallback constructor(private val load: (Int) -> Unit): PagedList.BoundaryCallback<Movie>(){
 
     private var count = 1
-    private var query = ""
 
     override fun onZeroItemsLoaded() {
         Log.e("TAG","Init")
@@ -21,13 +20,16 @@ class MovieBoundaryCallback constructor(private val load: (Int, String) -> Unit)
     }
 
     private fun postQuery(page: Int){
-        load(page,query)
+        load(page)
         count++
     }
 
-    fun update(query: String){
+    fun update(){
         resetCounter()
-        this.query = query
+    }
+
+    fun refresh(){
+        resetCounter()
     }
 
     private fun resetCounter(){
@@ -35,10 +37,8 @@ class MovieBoundaryCallback constructor(private val load: (Int, String) -> Unit)
     }
 
     fun newConnectNetwork(){
-        count--
-    }
-
-    fun refresh(){
-        resetCounter()
+        if (count > 1) {
+            count--
+        }
     }
 }

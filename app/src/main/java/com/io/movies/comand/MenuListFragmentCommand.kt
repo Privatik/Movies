@@ -3,21 +3,24 @@ package com.io.movies.comand
 import android.util.Log
 import android.view.MenuItem
 import androidx.appcompat.widget.SearchView
+import androidx.lifecycle.MutableLiveData
 import io.reactivex.Observable
-import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
-import io.reactivex.schedulers.Schedulers
 import java.util.concurrent.TimeUnit
 
-class MenuListFragmentCommand {
+class MenuListFragmentCommand(
+    private val favoriteLiveData: MutableLiveData<Boolean>,
+    private val queryLiveData: MutableLiveData<String>)
+{
 
     private var favoriteButton: MenuItem? = null
     private var favoriteButtonSelected: MenuItem? = null
 
+    fun searchViewListener(searchView: SearchView){
+        val queryText = queryLiveData.value!!
 
-    fun searchViewListener(searchView: SearchView, searchText: String, listener: (String) -> Unit){
-        if (searchText.isNotEmpty()) {
-            searchView.setQuery(searchText, false)
+        if (queryText.isNotEmpty()) {
+            searchView.setQuery(queryText, false)
             searchView.isIconified = false
         }
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
@@ -25,7 +28,7 @@ class MenuListFragmentCommand {
 
             override fun onQueryTextSubmit(query: String): Boolean {
                 Log.e("TAG", "submit $query")
-                listener(query)
+                queryLiveData.postValue(query)
                 return true
             }
 
@@ -44,30 +47,34 @@ class MenuListFragmentCommand {
         })
     }
 
-    fun favoriteButtonInit(favoriteButton: MenuItem, favoriteButtonSelected: MenuItem, isFavorite: Boolean?){
-        if (isFavorite != null && isFavorite) {
-            favoriteButton.isVisible = false
-        } else {
-            favoriteButtonSelected.isVisible = false
-        }
+    fun favoriteButtonInit(favoriteButton: MenuItem, favoriteButtonSelected: MenuItem){
+        if (this.favoriteButton == null) {
+            if (favoriteLiveData.value!!) {
+                favoriteButton.isVisible = false
+            } else {
+                favoriteButtonSelected.isVisible = false
+            }
 
-        this.favoriteButton = favoriteButton
-        this.favoriteButtonSelected = favoriteButtonSelected
+            this.favoriteButton = favoriteButton
+            this.favoriteButtonSelected = favoriteButtonSelected
+        }
+        Log.e("isFavoriteMenu","init favoritebutton")
     }
 
-    fun onClickFavoriteButton(idMenuButton: Int, isFavoriteMode: (Boolean) -> Unit){
+    fun onClickFavoriteButton(idMenuButton: Int){
         when (idMenuButton){
             favoriteButton?.itemId -> {
                 Log.e("Menu", "Selected")
                 favoriteButtonSelected!!.isVisible = true
                 favoriteButton!!.isVisible = false
-                isFavoriteMode(true)
+                favoriteLiveData.postValue(true)
+                Log.e("isFavoriteMenu","is null-? $favoriteButtonSelected")
             }
             favoriteButtonSelected?.itemId  -> {
                 Log.e("Menu", "Not Selected")
                 favoriteButtonSelected!!.isVisible = false
                 favoriteButton!!.isVisible = true
-                isFavoriteMode(false)
+                favoriteLiveData.postValue(false)
             }
             else -> {
                 Log.e("Menu", "Empty")

@@ -3,78 +3,71 @@ package com.io.movies.ui.fragment
 import android.annotation.SuppressLint
 import android.util.Log
 import androidx.databinding.ObservableBoolean
-import androidx.lifecycle.*
-import androidx.paging.LivePagedListBuilder
-import androidx.paging.PagedList
-import com.google.android.material.snackbar.Snackbar
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModel
+import androidx.paging.DataSource
 import com.io.movies.comand.FavoriteCommand
 import com.io.movies.model.Movie
 import com.io.movies.repository.MovieRepository
+import com.io.movies.repository.database.MovieDao
 import com.io.movies.util.Config
 import javax.inject.Inject
 
 class ListMoviesViewModel @Inject constructor(
-        private val movieRepository: MovieRepository
+    private val movieRepository: MovieRepository
 ) : ViewModel() {
 
-    var newLists: LiveData<PagedList<Movie>>? = null
+    val isFavoriteModeMutable: MutableLiveData<Boolean> = MutableLiveData(false)
+    val isFavoriteMode: LiveData<Boolean> = isFavoriteModeMutable
 
-    private val _isFavoriteMode: MutableLiveData<Boolean> = MutableLiveData()
-    private val _query: MutableLiveData<String> = MutableLiveData("")
-    val mediatorUpdateRecyclerView = MediatorLiveData<Any>()
-
-    private var observableConnect: Observer<Boolean>? = null
+    val queryMutable: MutableLiveData<String> by lazy { movieRepository.query }
+    val query: LiveData<String> = queryMutable
 
     val isRefreshing by lazy { ObservableBoolean() }
-    val isLoadAboutMovie by lazy { ObservableBoolean() }
+    val isLoadMovieFragment by lazy { ObservableBoolean() }
 
-    private val favoriteCommand by lazy{
+    val livedataMovieInfo by lazy { movieRepository.liveDataMovieInfo }
+    val livedataFavorite by lazy { movieRepository.liveDataFavorite }
+
+    private val observerQuery = Observer<String> {
+        updateQuery()
+    }
+
+    private val observerFavorite = Observer<Boolean> {
+        updateListFavoriteMovie()
+    }
+
+
+    private val favoriteCommand by lazy {
         FavoriteCommand()
     }
 
-    private var isFirstStart = true
-
-    private val config by lazy {
-        PagedList.Config.Builder()
-            .setEnablePlaceholders(false)
-            .setPageSize(20)
-            .setInitialLoadSizeHint(40)
-            .build()
-    }
+    var isFirstStart = true
 
     init {
         movieRepository.postParameters(isRefreshing)
-
-        mediatorUpdateRecyclerView.addSource(_query){ mediatorUpdateRecyclerView.value = it}
-        mediatorUpdateRecyclerView.addSource(_isFavoriteMode){ mediatorUpdateRecyclerView.value = it}
     }
 
-    //Обновление LIveData
-    fun postFavorite(isFavoriteMode: Boolean?){
-        _isFavoriteMode.postValue(isFavoriteMode)
+    fun getIsFavorite(): Boolean {
+        return isFavoriteMode.value ?: false
     }
 
-    fun postQuery(query: String){
-        movieRepository.updateQuery(query = query)
-        _query.postValue(query)
-    }
-
-    fun getQuery():String {
-        return _query.value ?: ""
-    }
-
-    fun getIsFavorite():Boolean {
-        return _isFavoriteMode.value ?: false
+    fun load() {
+        query.observeForever(observerQuery)
+        isFavoriteMode.observeForever(observerFavorite)
     }
 
     //Обновление списка фаворитов
-    fun updateFavoriteStateMovie(movie: Movie){
+    fun updateFavoriteStateMovie(movie: Movie) {
         if (getIsFavorite()) updateMovie(movie = movie)
-            else favoriteCommand.changeFavoriteStateMovie(movie = movie)
+        else favoriteCommand.changeFavoriteStateMovie(movie = movie)
     }
 
-    fun updateMovies(){
+    fun updateListFavoriteMovie() {
         favoriteCommand.updateListFavorite().let {
+            Log.e("UpdateMovie", "Size updateMovieList - ${it.size}")
             it.forEach { movie ->
                 updateMovie(movie = movie)
             }
@@ -82,69 +75,27 @@ class ListMoviesViewModel @Inject constructor(
         }
     }
 
-    private fun updateMovie(movie: Movie){
+    private fun updateMovie(movie: Movie) {
         Log.e("Tag", "Update $movie")
         movieRepository.updateMovie(movie = movie)
     }
 
     //Замена списка (поиск, список фаворитов)
-    fun updateQuery(){
-        if (getIsFavorite()){
-            onFavoriteMode()
-        } else {
-            offFavoriteMode()
-        }
+    private fun updateQuery() {
+//        updateListFavoriteMovie()
+        movieRepository.updateQuery()
+        if (Config.isConnect!!) deleteBase()
     }
 
-    private fun onFavoriteMode(){
-        movieRepository.clear()
-
-        newLists = LivePagedListBuilder(movieRepository.factoryFavorite(query = getQuery()), config)
-            .build()
-    }
-
-    private fun offFavoriteMode(){
-        movieRepository.clear()
-
-        newLists = LivePagedListBuilder(movieRepository.factoryMovieInfo(query = getQuery()), config)
-            .setBoundaryCallback(movieRepository.boundaryCallback)
-            .build()
-
-        Log.e("FavoriteMode","off")
-    }
-
-    //Контроль сети
-    fun isConnect(liveDataConnect: LiveData<Boolean>,
-                  isNotConnect: () -> Unit,
-                  updateLoad: () -> Unit,
-                  firstStart: () -> Unit){
-
-        if(observableConnect == null) {
-            observableConnect = Observer {
-                Log.e("Connect", "new connect $it")
-                if (it == null) return@Observer
-                if (isFirstStart) {
-                    if (it) deleteBase()
-                    else isNotConnect()
-                    isFirstStart = false
-                    firstStart()
-                } else {
-                    if (it) {
-                        movieRepository.boundaryCallback.newConnectNetwork()
-                        updateLoad()
-                    } else {
-                        isNotConnect()
-                    }
-                }
-            }
-        }
-        liveDataConnect.observeForever(observableConnect!!)
+    //Откат загрузки
+    fun newConnectNetwork() {
+        movieRepository.boundaryCallback.newConnectNetwork()
     }
 
     //Манипуляция с базами
     @SuppressLint("CheckResult")
-    fun refresh(){
-        movieRepository.boundaryCallback.refresh()
+    fun refresh() {
+        movieRepository.refresh()
         deleteBase()
     }
 
@@ -153,13 +104,15 @@ class ListMoviesViewModel @Inject constructor(
         movieRepository.delete()
     }
 
-    fun clear(){
-        observableConnect?.let { Config.isOnline()?.removeObserver(it) }
+    fun clear() {
+        movieRepository.clear()
     }
 
     override fun onCleared() {
+        isFavoriteMode.removeObserver(observerFavorite)
+        query.removeObserver(observerQuery)
+
         clear()
-        movieRepository.clear()
         super.onCleared()
     }
 }

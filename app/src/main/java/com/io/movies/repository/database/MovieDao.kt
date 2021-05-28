@@ -9,16 +9,16 @@ import io.reactivex.Single
 @Dao
 interface MovieDao {
 
-    @Query("SELECT * FROM movieinfo")
+    @Query("SELECT * FROM movie_info")
     fun getMovieListPaging(): DataSource.Factory<Int, MovieInfo>
 
-    @Query("SELECT * FROM movieinfo WHERE title LIKE :search")
+    @Query("SELECT * FROM movie_info WHERE LOWER(title) LIKE LOWER(:search)")
     fun getMovieListPagingSearch(search: String): DataSource.Factory<Int, MovieInfo>
 
     @Query("SELECT * FROM favorite ORDER BY `order` DESC")
     fun getMovieListPagingFavorite(): DataSource.Factory<Int, Favorite>
 
-    @Query("SELECT * FROM favorite WHERE title LIKE :search ORDER BY `order` DESC")
+    @Query("SELECT * FROM favorite WHERE LOWER(title) LIKE LOWER(:search) ORDER BY `order` DESC")
     fun getMovieListPagingFavoriteSearch(search: String): DataSource.Factory<Int, Favorite>
 
     @Query("SELECT id FROM favorite WHERE id = :id")
@@ -55,7 +55,7 @@ interface MovieDao {
         insert(movieInfo)
     }
 
-    @Query("UPDATE movieinfo SET isFavorite = :isFavorite WHERE id = :id")
+    @Query("UPDATE movie_info SET isFavorite = :isFavorite WHERE id = :id")
     fun updateMovie(id: Int, isFavorite: Boolean)
 
     @Transaction
@@ -76,7 +76,7 @@ interface MovieDao {
         }
     }
 
-    @Query("DELETE FROM movieinfo")
+    @Query("DELETE FROM movie_info")
     fun deleteMovie()
 
     @Query("DELETE FROM favorite WHERE id = :id")

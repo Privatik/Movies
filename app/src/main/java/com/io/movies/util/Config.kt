@@ -5,8 +5,11 @@ import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
 import android.net.NetworkRequest
+import android.view.View
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import com.google.android.material.snackbar.Snackbar
+import org.w3c.dom.Text
 
 
 object Config {
@@ -45,10 +48,16 @@ object Config {
                         postValue(false)
                     }
                 })
-            if (value == null) {
+
+            if (isConnect == null){
                 isConnect = false
                 postValue(false)
             }
         }
+    }
+
+
+    fun snackBarNoNetwork(view: View){
+        Snackbar.make(view, "No network", Snackbar.LENGTH_SHORT).show()
     }
 }

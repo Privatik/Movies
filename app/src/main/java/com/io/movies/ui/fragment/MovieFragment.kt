@@ -64,6 +64,7 @@ class MovieFragment: Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
         App.appComponent.inject(this)
     }
 
@@ -172,11 +173,10 @@ class MovieFragment: Fragment() {
 
     override fun onDestroyView() {
         binding.unbind()
+        viewModel.clear()
         loadDisposable?.dispose()
         super.onDestroyView()
     }
-
-
 
     override fun onDetach() {
         super.onDetach()

@@ -3,7 +3,11 @@ package com.io.movies.repository
 import android.annotation.SuppressLint
 import android.util.Log
 import androidx.databinding.ObservableBoolean
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.paging.DataSource
+import androidx.paging.PagedList
+import androidx.paging.toLiveData
 import com.io.movies.model.Movie
 import com.io.movies.model.ResultMovie
 import com.io.movies.paging.MovieBoundaryCallback
@@ -16,22 +20,49 @@ import javax.inject.Inject
 
 class MovieRepository @Inject constructor(
     private val movieService: MovieService,
-    private val database: MovieDao
+    private val dao: MovieDao
 ) {
 
     private lateinit var isRefreshing: ObservableBoolean
     private var disposable: Disposable? = null
 
+    val query = MutableLiveData("")
+
+    private val config by lazy {
+        PagedList.Config.Builder()
+            .setEnablePlaceholders(false)
+            .setPageSize(20)
+            .setInitialLoadSizeHint(40)
+            .build()
+    }
+
+
     val boundaryCallback by lazy {
-        val listenerQueue: (Int, String) -> Unit = { page, query ->
-            if (query.isEmpty()) {
-                load(page = page)
-            } else {
-                load(page = page, query = query)
-            }
-        }
+        val listenerQueue: (Int) -> Unit = { page -> load(page = page) }
 
         MovieBoundaryCallback(listenerQueue)
+    }
+
+    private val movieFactory by lazy {
+        object :  DataSource.Factory<Int, Movie>() {
+        override fun create(): DataSource<Int, Movie> =
+            dao.getMovie("%${query.value!!}%").map { it as Movie }.create()
+        }
+    }
+
+    private val favouriteFactory by lazy {
+        object : DataSource.Factory<Int, Movie>() {
+            override fun create(): DataSource<Int, Movie> =
+                dao.getMovieListPagingFavoriteSearch("%${query.value!!}%").map { it as Movie }.create()
+        }
+    }
+
+    val liveDataMovieInfo: LiveData<PagedList<Movie>> by lazy {
+        movieFactory.toLiveData(config = config, boundaryCallback = boundaryCallback)
+    }
+
+    val liveDataFavorite: LiveData<PagedList<Movie>> by lazy {
+        favouriteFactory.toLiveData(config = config)
     }
 
     fun postParameters(refreshing: ObservableBoolean) {
@@ -40,61 +71,52 @@ class MovieRepository @Inject constructor(
 
     @SuppressLint("CheckResult")
     fun load(page: Int) {
-        Log.e("TAG", "start load in main page:= $page")
-
-        loadInNetwork(movieService.getMovies(page = page))
+        Log.e("TAG", "start load in search page:= $page")
+        clear()
+        query.value?.let {
+            if (it.isNotEmpty())
+                loadInNetwork(movieService.getSearchMovies(page = page, query = it))
+            else {
+                loadInNetwork(movieService.getMovies(page = page))
+            }
+        }
     }
 
     @SuppressLint("CheckResult")
-    fun load(page: Int, query: String) {
-        Log.e("TAG", "start load in search page:= $page $query")
-        loadInNetwork(movieService.getSearchMovies(page = page, query = query))
-    }
-
-    @SuppressLint("CheckResult")
-    fun delete() = database.delete()
-
-    fun factoryMovieInfo(query: String): DataSource.Factory<Int, Movie> =
-        if (query.isEmpty()) {
-            database.getMovieListPaging().map{ it as Movie}
-        } else {
-            database.getMovieListPagingSearch(search = "%$query%").map{ it as Movie}
-        }
-
-    fun factoryFavorite(query: String): DataSource.Factory<Int, Movie> =
-        if (query.isEmpty()) {
-            database.getMovieListPagingFavorite().map{ it as Movie}
-        } else {
-            database.getMovieListPagingFavoriteSearch(search = "%$query%").map{ it as Movie}
-        }
-
-
-    @SuppressLint("CheckResult")
-    private fun loadInNetwork(observer: Single<ResultMovie>){
+    private fun loadInNetwork(observer: Single<ResultMovie>) {
         isRefreshing.set(true)
 
         disposable = observer.subscribeOn(Schedulers.io())
-                .subscribe({
-                    it.movieInfos.forEach { movie ->
-                       database.insertOrReplace(movieInfo = movie)
-                    }
-                    isRefreshing.set(false)
-                    Log.e("TAG","End load")
-                },{
-                    isRefreshing.set(false)
-                    Log.e("Paging","Repository method load: ${it.message}")
-                })
+            .subscribe({
+                it.movieInfos.forEach { movie ->
+                    dao.insertOrReplace(movieInfo = movie)
+                }
+                isRefreshing.set(false)
+                Log.e("TAG", "End load")
+            }, {
+                isRefreshing.set(false)
+                Log.e("Paging", "Repository method load: ${it.message}")
+            })
     }
 
     @SuppressLint("CheckResult")
-    fun updateMovie(movie: Movie) = database.updateListFavorite(movie = movie)
+    fun delete() = dao.delete()
 
-    fun updateQuery(query: String = ""){
-        boundaryCallback.update(query = query)
+    @SuppressLint("CheckResult")
+    fun updateMovie(movie: Movie) = dao.updateListFavorite(movie = movie)
+
+    fun updateQuery() {
+        liveDataMovieInfo.value?.dataSource?.invalidate()
+        boundaryCallback.update()
     }
 
-    fun clear(){
-        Log.e("request","cancel")
+    fun refresh() {
+        boundaryCallback.refresh()
+    }
+
+    fun clear() {
+        Log.e("request", "cancel")
         disposable?.dispose()
+        disposable = null
     }
 }
