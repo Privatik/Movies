@@ -19,11 +19,11 @@ class ListMoviesViewModel @Inject constructor(
     private val movieRepository: MovieRepository
 ) : ViewModel() {
 
-    val isFavoriteModeMutable: MutableLiveData<Boolean> = MutableLiveData(false)
-    val isFavoriteMode: LiveData<Boolean> = isFavoriteModeMutable
+    private val _isFavoriteModeMutable: MutableLiveData<Boolean> = MutableLiveData(false)
+    val isFavoriteMode: LiveData<Boolean> = _isFavoriteModeMutable
 
-    val queryMutable: MutableLiveData<String> by lazy { movieRepository.query }
-    val query: LiveData<String> = queryMutable
+    private val _queryMutable: MutableLiveData<String> by lazy { movieRepository.query }
+    val query: LiveData<String> = _queryMutable
 
     val isRefreshing by lazy { ObservableBoolean() }
     val isLoadMovieFragment by lazy { ObservableBoolean() }
@@ -54,6 +54,14 @@ class ListMoviesViewModel @Inject constructor(
         return isFavoriteMode.value ?: false
     }
 
+    fun postQuery(query: String){
+        _queryMutable.postValue(query)
+    }
+
+    fun postFavorite(isFavorite: Boolean){
+        _isFavoriteModeMutable.postValue(isFavorite)
+    }
+
     fun load() {
         query.observeForever(observerQuery)
         isFavoriteMode.observeForever(observerFavorite)
@@ -82,14 +90,27 @@ class ListMoviesViewModel @Inject constructor(
 
     //Замена списка (поиск, список фаворитов)
     private fun updateQuery() {
-//        updateListFavoriteMovie()
-        movieRepository.updateQuery()
-        if (Config.isConnect!!) deleteBase()
+        updateListFavoriteMovie()
+        movieRepository.clear()
+        movieRepository.invalidate()
+
+        if (Config.isConnect!!) {
+            movieRepository.updateQuery()
+            deleteBase()
+        }
     }
 
     //Откат загрузки
     fun newConnectNetwork() {
         movieRepository.boundaryCallback.newConnectNetwork()
+    }
+
+    fun setCount(){
+        movieRepository.setCount()
+    }
+
+    fun invalidate(){
+        movieRepository.invalidate()
     }
 
     //Манипуляция с базами

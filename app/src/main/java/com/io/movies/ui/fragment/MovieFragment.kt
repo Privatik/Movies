@@ -2,37 +2,25 @@ package com.io.movies.ui.fragment
 
 import android.annotation.SuppressLint
 import android.content.ActivityNotFoundException
-import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.widget.TextView
 import androidx.constraintlayout.helper.widget.Flow
-import androidx.constraintlayout.motion.widget.MotionLayout
-import androidx.constraintlayout.motion.widget.TransitionAdapter
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.content.res.ResourcesCompat
-import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
 import com.io.movies.R
 import com.io.movies.adapter.RecyclerAdapterCompany
 import com.io.movies.adapter.RecyclerAdapterCredit
-import com.io.movies.app.App
-import com.io.movies.databinding.FragmentMovieBinding
 import com.io.movies.model.AboutMovie
-import com.io.movies.ui.activity.IBackFromAboutMovie
-import com.io.movies.ui.activity.MainActivity
 import com.io.movies.util.Config
 import io.reactivex.Observable
 import io.reactivex.disposables.Disposable
 import java.util.concurrent.TimeUnit
-import javax.inject.Inject
 
-class MovieFragment: Fragment() {
+class MovieFragment: BaseMovieFragment() {
 
     companion object {
         private const val ID = "id"
@@ -44,73 +32,11 @@ class MovieFragment: Fragment() {
                 }
     }
 
-    private lateinit var binding: FragmentMovieBinding
-    private var backButtonFromToolbarFromAboutMovie: IBackFromAboutMovie? = null
-
     private var loadDisposable: Disposable? = null
-
-    private val viewModel by lazy {
-        ViewModelProvider(this, factory).get(MovieViewModel::class.java)
-    }
-
-    @Inject
-    lateinit var factory: ViewModelProvider.Factory
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-
-        backButtonFromToolbarFromAboutMovie = context as IBackFromAboutMovie
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-        App.appComponent.inject(this)
-    }
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-
-        binding = FragmentMovieBinding.inflate(inflater, container, false)
-        binding.viewModel = viewModel
-
-        return binding.root
-    }
 
     @SuppressLint("InflateParams")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        (activity as MainActivity).apply {
-            setSupportActionBar(binding.toolbar)
-            supportActionBar?.let {
-                it.setDisplayHomeAsUpEnabled(true)
-                it.setDisplayShowHomeEnabled(true)
-            }
-
-            binding.toolbar.navigationIcon = ResourcesCompat.getDrawable(resources, R.drawable.ic_baseline_arrow_back_24, null)!!
-        }
-
-        binding.motionLayout.setTransitionListener(object : TransitionAdapter(){
-            override fun onTransitionCompleted(motionLayout: MotionLayout?, currentId: Int) {
-                when (currentId){
-                    R.id.collapsed -> {
-                        Log.e("Motion","anim collapsed")
-                        backButtonFromToolbarFromAboutMovie?.backButtonClickable(isClickable = true)
-                    }
-                    R.id.expanded -> {
-                        Log.e("Motion","anim expanded")
-                        backButtonFromToolbarFromAboutMovie?.backButtonClickable(isClickable = false)
-                    }
-                    else -> {
-                        Log.e("Motion","anim else")
-                    }
-                }
-            }
-        })
 
         viewModel.loadAboutMovie.observe(viewLifecycleOwner){
             initAboutMovie(it)
@@ -133,6 +59,7 @@ class MovieFragment: Fragment() {
         }
 
         loadDisposable = Observable.timer(500, TimeUnit.MILLISECONDS).subscribe{
+            if (viewModel.loadAboutMovie.value == null)
             viewModel.load(requireArguments().getInt(ID))
         }
     }
@@ -143,7 +70,7 @@ class MovieFragment: Fragment() {
                 this@MovieFragment.viewModel.apply {
                     (it.backdrop != null).let { isHaveBackImage ->
                         isLoadBackImage.set(isHaveBackImage)
-                        backButtonFromToolbarFromAboutMovie?.backButtonClickable(!isHaveBackImage)
+                        setIsClickBackFromToolbar(!isHaveBackImage)
                     }
                 }
 
@@ -173,14 +100,9 @@ class MovieFragment: Fragment() {
 
     override fun onDestroyView() {
         binding.unbind()
-        viewModel.clear()
+      //  viewModel.clear()
         loadDisposable?.dispose()
         super.onDestroyView()
-    }
-
-    override fun onDetach() {
-        super.onDetach()
-        backButtonFromToolbarFromAboutMovie = null
     }
 }
 

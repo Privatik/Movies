@@ -24,6 +24,10 @@ class MovieBoundaryCallback constructor(private val load: (Int) -> Unit): PagedL
         count++
     }
 
+    fun setCount(count: Int){
+        this.count = count
+    }
+
     fun update(){
         resetCounter()
     }

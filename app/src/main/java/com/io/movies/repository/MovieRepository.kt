@@ -13,6 +13,7 @@ import com.io.movies.model.ResultMovie
 import com.io.movies.paging.MovieBoundaryCallback
 import com.io.movies.repository.database.MovieDao
 import com.io.movies.repository.network.MovieService
+import com.io.movies.util.Config
 import io.reactivex.Single
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
@@ -32,7 +33,7 @@ class MovieRepository @Inject constructor(
         PagedList.Config.Builder()
             .setEnablePlaceholders(false)
             .setPageSize(20)
-            .setInitialLoadSizeHint(40)
+            .setInitialLoadSizeHint(20)
             .build()
     }
 
@@ -46,7 +47,7 @@ class MovieRepository @Inject constructor(
     private val movieFactory by lazy {
         object :  DataSource.Factory<Int, Movie>() {
         override fun create(): DataSource<Int, Movie> =
-            dao.getMovie("%${query.value!!}%").map { it as Movie }.create()
+            dao.getMovieListPagingSearch("%${query.value!!}%").map { it as Movie }.create()
         }
     }
 
@@ -72,7 +73,7 @@ class MovieRepository @Inject constructor(
     @SuppressLint("CheckResult")
     fun load(page: Int) {
         Log.e("TAG", "start load in search page:= $page")
-        clear()
+
         query.value?.let {
             if (it.isNotEmpty())
                 loadInNetwork(movieService.getSearchMovies(page = page, query = it))
@@ -86,13 +87,17 @@ class MovieRepository @Inject constructor(
     private fun loadInNetwork(observer: Single<ResultMovie>) {
         isRefreshing.set(true)
 
-        disposable = observer.subscribeOn(Schedulers.io())
+        disposable = observer.subscribeOn(Schedulers.single())
             .subscribe({
+                if (it.page == 1){
+                    if (Config.isConnect!!) delete()
+                }
+
                 it.movieInfos.forEach { movie ->
                     dao.insertOrReplace(movieInfo = movie)
                 }
                 isRefreshing.set(false)
-                Log.e("TAG", "End load")
+                Log.e("TAG", "End load - ${it.page}")
             }, {
                 isRefreshing.set(false)
                 Log.e("Paging", "Repository method load: ${it.message}")
@@ -106,8 +111,19 @@ class MovieRepository @Inject constructor(
     fun updateMovie(movie: Movie) = dao.updateListFavorite(movie = movie)
 
     fun updateQuery() {
-        liveDataMovieInfo.value?.dataSource?.invalidate()
         boundaryCallback.update()
+    }
+
+    fun setCount(){
+        val count: Int = (dao.getCountMovies() * 0.05).toInt() + 2
+        Log.e("Count","$count")
+
+        boundaryCallback.setCount(count = count)
+    }
+
+    fun invalidate(){
+        liveDataMovieInfo.value?.dataSource?.invalidate()
+        liveDataFavorite.value?.dataSource?.invalidate()
     }
 
     fun refresh() {
@@ -117,6 +133,5 @@ class MovieRepository @Inject constructor(
     fun clear() {
         Log.e("request", "cancel")
         disposable?.dispose()
-        disposable = null
     }
 }

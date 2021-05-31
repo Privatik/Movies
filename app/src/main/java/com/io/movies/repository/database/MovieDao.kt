@@ -21,6 +21,9 @@ interface MovieDao {
     @Query("SELECT * FROM favorite WHERE LOWER(title) LIKE LOWER(:search) ORDER BY `order` DESC")
     fun getMovieListPagingFavoriteSearch(search: String): DataSource.Factory<Int, Favorite>
 
+    @Query("SELECT COUNT(*) FROM movie_info")
+    fun getCountMovies(): Int
+
     @Query("SELECT id FROM favorite WHERE id = :id")
     fun getMovieFavorite(id: Int): Int?
 
