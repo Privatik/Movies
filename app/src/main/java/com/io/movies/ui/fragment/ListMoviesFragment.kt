@@ -15,10 +15,10 @@ class ListMoviesFragment : BaseListMoviesFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        connectLiveData()
         if (!viewModel.isFirstStart){
             initMovieInfoAndFavoriteAdapters()
         }
+        connectLiveData()
 
         binding.swipeRefresh.apply {
             setColorSchemeResources(R.color.purple_200)
@@ -42,11 +42,11 @@ class ListMoviesFragment : BaseListMoviesFragment() {
                 viewModel.load()
                 if (it) {
                     viewModel.deleteBase()
-                    initMovieInfoAndFavoriteAdapters()
                 } else{
                     viewModel.setCount()
                     Config.snackBarNoNetwork(binding.root)
                 }
+                initMovieInfoAndFavoriteAdapters()
                 viewModel.isFirstStart = false
             }else{
                 if (it) {
