@@ -81,6 +81,7 @@ open class BaseListMoviesFragment : Fragment() {
         (activity as AppCompatActivity).apply {
             setSupportActionBar(binding.toolbar)
             supportActionBar?.setDisplayShowTitleEnabled(false)
+            supportActionBar?.setDisplayShowHomeEnabled(false)
         }
     }
 
@@ -88,6 +89,7 @@ open class BaseListMoviesFragment : Fragment() {
         inflater.inflate(R.menu.menu_list, menu)
 
         (menu.findItem(R.id.action_search).actionView as SearchView).let { searchView ->
+            searchView.maxWidth = binding.toolbar.width - 90
             val queryText = viewModel.query.value!!
 
             if (queryText.isNotEmpty()) {

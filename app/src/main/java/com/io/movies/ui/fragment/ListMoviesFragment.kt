@@ -16,19 +16,8 @@ class ListMoviesFragment : BaseListMoviesFragment() {
         super.onViewCreated(view, savedInstanceState)
 
         connectLiveData()
-        binding.moviesRecycler.adapter = PagedAdapterMovie(update = {viewModel.updateFavoriteStateMovie(it)}, showMovie = showMovie).also{ adapter ->
-            adapter.stateRestorationPolicy = RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
-            viewModel.livedataMovieInfo.observe(viewLifecycleOwner) {
-                adapter.submitList(it)
-            }
-        }
-
-        binding.moviesRecyclerFavorite.adapter = PagedAdapterMovie(update = {viewModel.updateFavoriteStateMovie(it)}, showMovie = showMovie).also{ adapter ->
-            adapter.stateRestorationPolicy = RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
-            viewModel.livedataFavorite.observe(viewLifecycleOwner) {
-                Log.e("FavoriteList", "add ${it.size}")
-                adapter.submitList(it)
-            }
+        if (!viewModel.isFirstStart){
+            initMovieInfoAndFavoriteAdapters()
         }
 
         binding.swipeRefresh.apply {
@@ -51,7 +40,10 @@ class ListMoviesFragment : BaseListMoviesFragment() {
         Config.isOnline(requireContext().applicationContext)?.observe(viewLifecycleOwner){
             if (viewModel.isFirstStart){
                 viewModel.load()
-                if (it) viewModel.deleteBase() else{
+                if (it) {
+                    viewModel.deleteBase()
+                    initMovieInfoAndFavoriteAdapters()
+                } else{
                     viewModel.setCount()
                     Config.snackBarNoNetwork(binding.root)
                 }
@@ -65,6 +57,23 @@ class ListMoviesFragment : BaseListMoviesFragment() {
                 }
             }
             Log.e("Tag","new connect - $it")
+        }
+    }
+
+    private fun initMovieInfoAndFavoriteAdapters(){
+        binding.moviesRecycler.adapter = PagedAdapterMovie(update = {viewModel.updateFavoriteStateMovie(it)}, showMovie = showMovie).also{ adapter ->
+            adapter.stateRestorationPolicy = RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
+            viewModel.livedataMovieInfo.observe(viewLifecycleOwner) {
+                adapter.submitList(it)
+            }
+        }
+
+        binding.moviesRecyclerFavorite.adapter = PagedAdapterMovie(update = {viewModel.updateFavoriteStateMovie(it)}, showMovie = showMovie).also{ adapter ->
+            adapter.stateRestorationPolicy = RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
+            viewModel.livedataFavorite.observe(viewLifecycleOwner) {
+                Log.e("FavoriteList", "add ${it.size}")
+                adapter.submitList(it)
+            }
         }
     }
 
