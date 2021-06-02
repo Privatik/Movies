@@ -40,7 +40,7 @@ class MovieViewModel @Inject constructor(
         repository.loadCredit(id = id).subscribe(
             {
                 Log.e("ResultCredit","load - CreditResult")
-                if (loadAboutMovie.value != null) return@subscribe
+                if (updateCredit.value != null) return@subscribe
                 _updateCredit.postValue(it)
             },{
                 Log.e("ResultCredit","error - $it")
